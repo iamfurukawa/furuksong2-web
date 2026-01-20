@@ -1,0 +1,70 @@
+@use 'sass:color';
+@use '../../styles/variables.scss' as *;
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, $background-dark 0%, color.adjust($background-dark, $lightness: 20%) 100%);
+}
+
+.login-card {
+  background: $background-light;
+  padding: $spacing-xl;
+  border-radius: $border-radius;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 400px;
+
+  h1 {
+    text-align: center;
+    color: $text-dark;
+    margin-bottom: $spacing-lg;
+    font-size: 2.5em;
+  }
+}
+
+.login-form {
+  .form-group {
+    margin-bottom: $spacing-lg;
+
+    label {
+      display: block;
+      margin-bottom: $spacing-xs;
+      color: $text-dark;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: $spacing-sm;
+      border: 2px solid #e1e5e9;
+      border-radius: $border-radius-sm;
+      font-size: 1em;
+      transition: border-color 0.3s;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+      }
+    }
+  }
+
+  .login-button {
+    width: 100%;
+    padding: $spacing-sm;
+    background-color: $primary-color;
+    color: white;
+    border: none;
+    border-radius: $border-radius-sm;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: color.adjust($primary-color, $lightness: -10%);
+    }
+  }
+}

@@ -5,38 +5,38 @@
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
-  color: $text-light;
-  background-color: $background-dark;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  color: $text-dark;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 a {
-  font-weight: 500;
   color: $primary-color;
-  text-decoration: inherit;
+  text-decoration: none;
   
   &:hover {
     color: color.adjust($primary-color, $lightness: -10%);
   }
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: $mobile;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
 }
 
 button {
@@ -46,31 +46,11 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: color.adjust($background-dark, $lightness: 10%);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.2s;
   
-  &:hover {
-    border-color: $primary-color;
-  }
-  
-  &:focus,
-  &:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
-  }
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: $text-dark;
-    background-color: $background-light;
-  }
-  
-  a:hover {
-    color: color.adjust($primary-color, $lightness: 10%);
-  }
-  
-  button {
-    background-color: #f9f9f9;
+  &:focus {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
   }
 }

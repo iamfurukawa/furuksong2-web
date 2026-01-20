@@ -1,0 +1,95 @@
+@use '../styles/variables.scss' as *;
+
+.sound-grid {
+  .sound-grid-header {
+    margin-bottom: $spacing-lg;
+    text-align: center;
+
+    h2 {
+      margin: 0 0 $spacing-xs 0;
+      color: $text-dark;
+      font-size: 2em;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: #666;
+      font-size: 1.1em;
+    }
+  }
+
+  .sound-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: $spacing-md;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .sound-button {
+    aspect-ratio: 1;
+    border: none;
+    border-radius: $border-radius;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+    min-height: 150px;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    .sound-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      padding: $spacing-md;
+      text-align: center;
+
+      .sound-name {
+        color: white;
+        font-weight: 600;
+        font-size: 1.1em;
+        margin-bottom: $spacing-sm;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+      }
+
+      .play-icon,
+      .add-icon {
+        opacity: 0.8;
+        transition: opacity 0.2s;
+      }
+
+      &:hover .play-icon,
+      &:hover .add-icon {
+        opacity: 1;
+      }
+    }
+  }
+
+  .add-sound-button {
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+
+    .sound-content {
+      .sound-name {
+        color: #666;
+        text-shadow: none;
+      }
+    }
+
+    &:hover {
+      background-color: #e9ecef;
+      border-color: #adb5bd;
+    }
+  }
+}
