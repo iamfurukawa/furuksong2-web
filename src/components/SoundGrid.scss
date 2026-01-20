@@ -1,28 +1,9 @@
 @use '../styles/variables.scss' as *;
 
 .sound-grid {
-  .sound-grid-header {
-    margin-bottom: $spacing-lg;
-    text-align: center;
-
-    h2 {
-      margin: 0 0 $spacing-xs 0;
-      color: $text-dark;
-      font-size: 2em;
-      font-weight: 600;
-    }
-
-    .subtitle {
-      margin: 0;
-      color: #666;
-      font-size: 1.1em;
-    }
-  }
-
   .sound-grid-container {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: $spacing-md;
     max-width: 1200px;
     margin: 0 auto;
   }
@@ -30,7 +11,6 @@
   .sound-button {
     aspect-ratio: 1;
     border: none;
-    border-radius: $border-radius;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     position: relative;

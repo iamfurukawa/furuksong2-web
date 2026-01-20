@@ -1,0 +1,58 @@
+@use '../styles/variables.scss' as *;
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: $spacing-lg;
+}
+
+.modal-content {
+  background: $background-light;
+  border-radius: $border-radius;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-lg;
+  border-bottom: 1px solid #e5e7eb;
+
+  h2 {
+    margin: 0;
+    color: $text-dark;
+    font-size: 1.5em;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    padding: $spacing-xs;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #f3f4f6;
+      color: $text-dark;
+    }
+  }
+}
+
+.modal-body {
+  padding: $spacing-lg;
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import AddSoundModal from './AddSoundModal';
 import './SoundGrid.scss';
 
 interface Sound {
@@ -9,7 +10,7 @@ interface Sound {
 }
 
 const SoundGrid = ({ searchTerm }: { searchTerm: string }) => {
-  const [sounds] = useState<Sound[]>([
+  const [sounds, setSounds] = useState<Sound[]>([
     { id: '1', name: 'Sound 1', color: '#ff6b6b' },
     { id: '2', name: 'Sound 2', color: '#4ecdc4' },
     { id: '3', name: 'Sound 3', color: '#45b7d1' },
@@ -17,6 +18,8 @@ const SoundGrid = ({ searchTerm }: { searchTerm: string }) => {
     { id: '5', name: 'Sound 5', color: '#ffeaa7' },
     { id: '6', name: 'Sound 6', color: '#dfe6e9' },
   ]);
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const filteredSounds = sounds.filter(sound =>
     sound.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -27,20 +30,27 @@ const SoundGrid = ({ searchTerm }: { searchTerm: string }) => {
     // TODO: Implement audio playback
   };
 
-  const handleAddSound = () => {
-    console.log('Add new sound');
-    // TODO: Implement add sound functionality
+  const handleAddSound = (soundData: { name: string; file: File; categories: string[] }) => {
+    console.log('Adding sound:', soundData);
+    
+    // Criar URL temporária para o arquivo
+    const audioUrl = URL.createObjectURL(soundData.file);
+    
+    // Adicionar novo som à lista
+    const newSound: Sound = {
+      id: Date.now().toString(),
+      name: soundData.name,
+      color: '#' + Math.floor(Math.random()*16777215).toString(16), // Cor aleatória
+      audioUrl
+    };
+    
+    setSounds(prev => [...prev, newSound]);
   };
 
   return (
     <div className="sound-grid">
-      <div className="sound-grid-header">
-        <h2>Soundboard 1</h2>
-        <p className="subtitle">Kurt Thyboe - The Worlds Greatest</p>
-      </div>
-      
       <div className="sound-grid-container">
-        <button className="sound-button add-sound-button" onClick={handleAddSound}>
+        <button className="sound-button add-sound-button" onClick={() => setIsAddModalOpen(true)}>
           <div className="sound-content">
             <span className="sound-name">Add new sound...</span>
             <div className="add-icon">
@@ -69,6 +79,12 @@ const SoundGrid = ({ searchTerm }: { searchTerm: string }) => {
           </button>
         ))}
       </div>
+
+      <AddSoundModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAddSound={handleAddSound}
+      />
     </div>
   );
 };

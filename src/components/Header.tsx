@@ -12,7 +12,7 @@ const Header = ({ user, onLogout, searchTerm, onSearchChange }: HeaderProps) => 
   return (
     <header className="header">
       <div className="header-left">
-        <h1>Soundboard</h1>
+        <h1>Furuksong2</h1>
       </div>
       
       <div className="header-center">
