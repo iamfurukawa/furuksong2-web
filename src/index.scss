@@ -1,0 +1,76 @@
+@use 'sass:color';
+@use './styles/variables.scss' as *;
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: $text-light;
+  background-color: $background-dark;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: $primary-color;
+  text-decoration: inherit;
+  
+  &:hover {
+    color: color.adjust($primary-color, $lightness: -10%);
+  }
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: $mobile;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: $border-radius;
+  border: 1px solid transparent;
+  padding: $spacing-xs $spacing-sm;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: color.adjust($background-dark, $lightness: 10%);
+  cursor: pointer;
+  transition: border-color 0.25s;
+  
+  &:hover {
+    border-color: $primary-color;
+  }
+  
+  &:focus,
+  &:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: $text-dark;
+    background-color: $background-light;
+  }
+  
+  a:hover {
+    color: color.adjust($primary-color, $lightness: 10%);
+  }
+  
+  button {
+    background-color: #f9f9f9;
+  }
+}
