@@ -40,6 +40,17 @@ const SoundGrid = ({ searchTerm }: { searchTerm: string }) => {
       </div>
       
       <div className="sound-grid-container">
+        <button className="sound-button add-sound-button" onClick={handleAddSound}>
+          <div className="sound-content">
+            <span className="sound-name">Add new sound...</span>
+            <div className="add-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#666">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
+              </svg>
+            </div>
+          </div>
+        </button>
+
         {filteredSounds.map((sound) => (
           <button
             key={sound.id}
@@ -57,17 +68,6 @@ const SoundGrid = ({ searchTerm }: { searchTerm: string }) => {
             </div>
           </button>
         ))}
-        
-        <button className="sound-button add-sound-button" onClick={handleAddSound}>
-          <div className="sound-content">
-            <span className="sound-name">Add new sound...</span>
-            <div className="add-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="#666">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>
-              </svg>
-            </div>
-          </div>
-        </button>
       </div>
     </div>
   );
