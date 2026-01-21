@@ -1,12 +1,7 @@
 import { useState, useRef } from 'react';
 import Modal from './Modal';
+import { useCategories } from '../hooks/useCategories';
 import './AddSoundModal.scss';
-
-interface Category {
-  id: string;
-  name: string;
-  color: string;
-}
 
 interface AddSoundModalProps {
   isOpen: boolean;
@@ -23,14 +18,12 @@ const AddSoundModal = ({ isOpen, onClose, onAddSound }: AddSoundModalProps) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { categories, loading, error } = useCategories();
 
-  const categories: Category[] = [
-    { id: '1', name: 'Memes', color: '#ff6b6b' },
-    { id: '2', name: 'Gaming', color: '#4ecdc4' },
-    { id: '3', name: 'Music', color: '#45b7d1' },
-    { id: '4', name: 'Effects', color: '#96ceb4' },
-    { id: '5', name: 'Voice', color: '#ffeaa7' },
-    { id: '6', name: 'Animals', color: '#dfe6e9' },
+  const categoryColors = [
+    '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', 
+    '#ffeaa7', '#dfe6e9', '#fd79a8', '#a29bfe',
+    '#6c5ce7', '#00b894', '#00cec9', '#0984e3'
   ];
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,11 +80,12 @@ const AddSoundModal = ({ isOpen, onClose, onAddSound }: AddSoundModalProps) => {
   };
 
   const getCategoryName = (categoryId: string) => {
-    return categories.find(cat => cat.id === categoryId)?.name || '';
+    return categories.find(cat => cat.id === categoryId)?.label || '';
   };
 
   const getCategoryColor = (categoryId: string) => {
-    return categories.find(cat => cat.id === categoryId)?.color || '#ccc';
+    const index = categories.findIndex(cat => cat.id === categoryId);
+    return categoryColors[index % categoryColors.length];
   };
 
   return (
@@ -138,21 +132,27 @@ const AddSoundModal = ({ isOpen, onClose, onAddSound }: AddSoundModalProps) => {
             
             {showCategoryDropdown && (
               <div className="category-dropdown">
-                {categories.map((category) => (
-                  <label key={category.id} className="category-item">
-                    <input
-                      type="checkbox"
-                      checked={selectedCategories.includes(category.id)}
-                      onChange={() => toggleCategory(category.id)}
-                    />
-                    <span 
-                      className="category-badge"
-                      style={{ backgroundColor: category.color }}
-                    >
-                      {category.name}
-                    </span>
-                  </label>
-                ))}
+                {loading ? (
+                  <div className="loading-categories">Loading categories...</div>
+                ) : error ? (
+                  <div className="error-categories">Error loading categories</div>
+                ) : (
+                  categories.map((category) => (
+                    <label key={category.id} className="category-item">
+                      <input
+                        type="checkbox"
+                        checked={selectedCategories.includes(category.id)}
+                        onChange={() => toggleCategory(category.id)}
+                      />
+                      <span 
+                        className="category-badge"
+                        style={{ backgroundColor: getCategoryColor(category.id) }}
+                      >
+                        {category.label}
+                      </span>
+                    </label>
+                  ))
+                )}
               </div>
             )}
           </div>

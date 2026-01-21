@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
+import { useCategories } from '../hooks/useCategories';
 import type { User } from '../hooks/useAuth';
 import './Header.scss';
 
@@ -15,15 +16,14 @@ interface HeaderProps {
 const Header = ({ user, onLogout, searchTerm, onSearchChange, selectedCategory, onCategoryChange }: HeaderProps) => {
   const { theme, toggleTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState(searchTerm);
+  const { categories, loading, error } = useCategories();
 
-  const categories = [
+  const categoryOptions = [
     { value: 'all', label: 'All Categories' },
-    { value: 'memes', label: 'Memes' },
-    { value: 'gaming', label: 'Gaming' },
-    { value: 'music', label: 'Music' },
-    { value: 'effects', label: 'Effects' },
-    { value: 'voice', label: 'Voice' },
-    { value: 'animals', label: 'Animals' }
+    ...categories.map((category) => ({
+      value: category.id,
+      label: category.label,
+    })),
   ];
 
   return (
@@ -48,12 +48,19 @@ const Header = ({ user, onLogout, searchTerm, onSearchChange, selectedCategory, 
             className="category-select"
             value={selectedCategory}
             onChange={(e) => onCategoryChange(e.target.value)}
+            disabled={loading}
           >
-            {categories.map((category) => (
-              <option key={category.value} value={category.value}>
-                {category.label}
-              </option>
-            ))}
+            {loading ? (
+              <option>Loading categories...</option>
+            ) : error ? (
+              <option>Error loading categories</option>
+            ) : (
+              categoryOptions.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))
+            )}
           </select>
         </div>
       </div>
