@@ -63,6 +63,13 @@ const Sidebar = () => {
   };
 
   useEffect(() => {
+    // Auto-connect to WebSocket when available, but don't join any room automatically
+    if (connected && roomsWithUsers.length > 0 && !currentRoom) {
+      console.log('WebSocket connected and rooms available, ready for manual room selection');
+    }
+  }, [connected, roomsWithUsers, currentRoom]);
+
+  useEffect(() => {
     return () => {
       if (currentRoom && connected) {
         leaveRoom(currentRoom);
