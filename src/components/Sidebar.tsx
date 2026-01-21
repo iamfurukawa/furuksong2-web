@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRooms } from '../hooks/useRooms';
+import { useSocket } from '../hooks/useSocket';
+import { useAuth } from '../hooks/useAuth';
 import './Sidebar.scss';
 
 interface User {
@@ -16,26 +18,57 @@ interface RoomWithUsers {
 
 const Sidebar = () => {
   const [selectedRoom, setSelectedRoom] = useState('general');
+  const { user } = useAuth();
   const { rooms, loading, error } = useRooms();
+  const { connected, usersState, joinRoom, leaveRoom, currentRoom } = useSocket('ws://localhost:3000');
 
-  // Mock users for now - this could come from a real-time API later
-  const mockUsers = [
-    { id: '1', name: 'Simon Busborg', status: 'online' as const },
-    { id: '2', name: 'Kurt Thyboe', status: 'online' as const },
-    { id: '3', name: 'Maria Silva', status: 'idle' as const },
-    { id: '4', name: 'João Santos', status: 'online' as const },
-    { id: '5', name: 'Ana Costa', status: 'online' as const },
-    { id: '6', name: 'Pedro Lima', status: 'offline' as const },
-    { id: '7', name: 'Lucas Souza', status: 'idle' as const },
-    { id: '8', name: 'Carla Dias', status: 'online' as const },
-  ];
+  const userName = user?.name || 'Guest User';
 
-  // Combine API rooms with mock users for display
-  const roomsWithUsers: RoomWithUsers[] = rooms.map((room, index) => ({
-    id: room.id,
-    name: room.name,
-    users: mockUsers.slice(index * 2, (index * 2) + 2) // Assign 2 users per room for demo
-  }));
+  // Combine API rooms with WebSocket users state
+  const roomsWithUsers: RoomWithUsers[] = rooms.map((room) => {
+    const wsRoomUsers = usersState.rooms[room.id]?.users || [];
+    const displayUsers = wsRoomUsers.length > 0 
+      ? wsRoomUsers.map((user: any) => ({
+          id: user.socketId,
+          name: user.name,
+          status: 'online' as const
+        }))
+      : []; // No fallback users when no real users
+
+    return {
+      id: room.id,
+      name: room.name,
+      users: displayUsers
+    };
+  });
+
+  const handleRoomClick = (roomId: string) => {
+    if (!connected) return;
+    
+    if (currentRoom === roomId) {
+      console.log('Já está na sala:', roomId);
+      return;
+    }
+    
+    const previousRoom = currentRoom;
+    
+    // Sair da sala atual primeiro
+    if (previousRoom) {
+      leaveRoom(previousRoom);
+    }
+    
+    // Depois entrar na nova sala
+    joinRoom(roomId, userName);
+    setSelectedRoom(roomId);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (currentRoom && connected) {
+        leaveRoom(currentRoom);
+      }
+    };
+  }, [currentRoom, connected, leaveRoom]);
 
   const getStatusColor = (status: User['status']) => {
     switch (status) {
@@ -49,15 +82,18 @@ const Sidebar = () => {
   const getAllOnlineUsers = () => {
     const allOnlineUsers: (User & { roomName: string })[] = [];
     
-    roomsWithUsers.forEach((room) => {
-      room.users.forEach((user: User) => {
-        if (user.status === 'online') {
+    Object.entries(usersState.rooms).forEach(([roomId, roomData]) => {
+      const room = roomsWithUsers.find(r => r.id === roomId);
+      if (room) {
+        roomData.users.forEach((user: any) => {
           allOnlineUsers.push({
-            ...user,
+            id: user.socketId,
+            name: user.name,
+            status: 'online' as const,
             roomName: room.name
           });
-        }
-      });
+        });
+      }
     });
     
     return allOnlineUsers;
@@ -76,11 +112,16 @@ const Sidebar = () => {
             roomsWithUsers.map((room) => (
               <button
                 key={room.id}
-                className={`room-item ${selectedRoom === room.id ? 'active' : ''}`}
-                onClick={() => setSelectedRoom(room.id)}
+                className={`room-item ${selectedRoom === room.id ? 'active' : ''} ${currentRoom === room.id ? 'connected' : ''}`}
+                onClick={() => handleRoomClick(room.id)}
               >
                 <span className="room-name">{room.name}</span>
                 <span className="room-users">{room.users.length}</span>
+                {connected && (
+                  <div className="connection-indicator">
+                    <div className={`status-dot ${currentRoom === room.id ? 'active' : 'inactive'}`} />
+                  </div>
+                )}
               </button>
             ))
           ) : (

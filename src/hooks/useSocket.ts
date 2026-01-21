@@ -30,7 +30,7 @@ interface SocketFunctions {
   disconnect: () => void;
 }
 
-export const useSocket = (serverUrl: string) => {
+export const useSocket = (serverUrl: string): SocketFunctions => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const [usersState, setUsersState] = useState<UsersState>({
@@ -67,12 +67,12 @@ export const useSocket = (serverUrl: string) => {
 
     newSocket.on('joined-room', (data: { roomId: string }) => {
       console.log('Entrou na sala:', data.roomId);
-      setCurrentRoom(data.roomId);
+      // Não atualizar currentRoom aqui para evitar race condition
     });
 
     newSocket.on('left-room', (data: { roomId: string }) => {
       console.log('Saiu da sala:', data.roomId);
-      setCurrentRoom(null);
+      // Não atualizar currentRoom aqui para evitar race condition
     });
 
     newSocket.on('sound-played', (data: { 
@@ -85,35 +85,36 @@ export const useSocket = (serverUrl: string) => {
       // Aqui podemos adicionar lógica para mostrar notificações
     });
 
-    const socketFunctions: SocketFunctions = {
-      socket,
-      connected,
-      usersState,
-      currentRoom,
-      joinRoom: (roomId: string, userName: string) => {
-        if (newSocket) {
-          newSocket.emit('join-room', { roomId, name: userName });
-        }
-      },
-      leaveRoom: (roomId: string) => {
-        if (newSocket) {
-          newSocket.emit('leave-room', { roomId });
-        }
-      },
-      playSound: (soundId: string) => {
-        if (newSocket) {
-          newSocket.emit('play-sound', { soundId });
-        }
-      },
-      disconnect: () => {
-        if (newSocket) {
-          newSocket.disconnect();
-        }
+    return () => {
+      if (newSocket) {
+        newSocket.disconnect();
       }
     };
-
-    return socketFunctions;
   }, [serverUrl]);
+
+  const joinRoom = (roomId: string, userName: string) => {
+    if (socket) {
+      socket.emit('join-room', { roomId, name: userName });
+    }
+  };
+
+  const leaveRoom = (roomId: string) => {
+    if (socket) {
+      socket.emit('leave-room', { roomId });
+    }
+  };
+
+  const playSound = (soundId: string) => {
+    if (socket) {
+      socket.emit('play-sound', { soundId });
+    }
+  };
+
+  const disconnect = () => {
+    if (socket) {
+      socket.disconnect();
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -122,4 +123,15 @@ export const useSocket = (serverUrl: string) => {
       }
     };
   }, [socket]);
+
+  return {
+    socket,
+    connected,
+    usersState,
+    currentRoom,
+    joinRoom,
+    leaveRoom,
+    playSound,
+    disconnect
+  };
 };
