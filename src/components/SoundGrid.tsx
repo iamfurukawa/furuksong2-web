@@ -96,7 +96,7 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
             <div className="sound-content">
               <span className="sound-name">{sound.name}</span>
               <div className="play-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
                   <path d="M8 5v14l11-7z"/>
                 </svg>
               </div>
