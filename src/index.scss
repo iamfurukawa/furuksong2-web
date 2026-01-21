@@ -54,9 +54,13 @@ button {
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s;
+  outline: none;
   
   &:focus {
-    outline: 2px solid $primary-color;
-    outline-offset: 2px;
+    outline: none;
+  }
+  
+  &:focus-visible {
+    outline: none;
   }
 }
