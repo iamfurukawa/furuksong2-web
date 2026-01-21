@@ -1,10 +1,26 @@
 // Cores do tema
 $primary-color: #646cff;
 $secondary-color: #61dafb;
-$background-dark: #242424;
-$background-light: #ffffff;
-$text-dark: #213547;
-$text-light: rgba(255, 255, 255, 0.87);
+
+// Light theme
+$light-bg: #ffffff;
+$light-surface: #f5f5f5;
+$light-text: #213547;
+$light-text-secondary: #666666;
+$light-border: #e0e0e0;
+
+// Dark theme
+$dark-bg: #1a1a1a;
+$dark-surface: #2d2d2d;
+$dark-text: #ffffff;
+$dark-text-secondary: #b0b0b0;
+$dark-border: #404040;
+
+// Default (light theme)
+$background-light: $light-bg;
+$background-dark: $dark-bg;
+$text-dark: $light-text;
+$text-light: $light-text-secondary;
 
 // Espaçamentos
 $spacing-xs: 0.5rem;

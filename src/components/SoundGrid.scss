@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use '../styles/variables.scss' as *;
 
 .sound-grid {
@@ -16,6 +17,7 @@
     position: relative;
     overflow: hidden;
     min-height: 150px;
+    border-radius: 0;
 
     &:hover {
       transform: translateY(-2px);
@@ -36,16 +38,22 @@
       text-align: center;
 
       .sound-name {
-        color: white;
         font-weight: 600;
-        font-size: 1.1em;
-        margin-bottom: $spacing-sm;
+        font-size: 1em;
+        margin-bottom: $spacing-xs;
+        word-break: break-word;
+        color: white;
         text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
       }
 
       .play-icon,
       .add-icon {
         opacity: 0.8;
+        transition: opacity 0.2s;
+      }
+
+      .add-icon {
+        opacity: 0.7;
         transition: opacity 0.2s;
       }
 
@@ -57,8 +65,9 @@
   }
 
   .add-sound-button {
-    background-color: #f8f9fa;
-    border: 2px dashed #dee2e6;
+    background-color: #f0f0f0;
+    color: #666;
+    border: 2px dashed #ccc;
 
     .sound-content {
       .sound-name {
@@ -68,8 +77,8 @@
     }
 
     &:hover {
-      background-color: #e9ecef;
-      border-color: #adb5bd;
+      background-color: #e5e7eb;
+      border-color: #999;
     }
   }
 }
