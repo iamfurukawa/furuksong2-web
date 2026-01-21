@@ -78,7 +78,10 @@ const Header = ({ user, onLogout, searchTerm, onSearchChange, selectedCategory, 
         {user && (
           <div className="user-info">
             <span className="user-name">{user.name}</span>
-            <button onClick={onLogout} className="logout-button">
+            <button onClick={() => {
+              onLogout();
+              window.location.href = '/login';
+            }} className="logout-button">
               Sair
             </button>
           </div>
