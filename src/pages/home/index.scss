@@ -17,4 +17,10 @@
   flex: 1;
   padding: $spacing-lg;
   overflow-y: auto;
+  background-color: #f5f5f5;
+  transition: background-color 0.3s ease;
+
+  body[data-theme='dark'] & {
+    background-color: $dark-surface;
+  }
 }
