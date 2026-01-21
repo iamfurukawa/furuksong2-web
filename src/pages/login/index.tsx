@@ -1,18 +1,17 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import './index.scss';
 
 const Login = () => {
   const [name, setName] = useState('');
   const { login } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
       login(name.trim());
-      navigate('/');
+      // Usar window.location como fallback
+      window.location.href = '/';
     }
   };
 
