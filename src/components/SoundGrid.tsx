@@ -13,12 +13,12 @@ interface Sound {
 
 const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selectedCategory: string }) => {
   const [sounds, setSounds] = useState<Sound[]>([
-    { id: '1', name: 'Sound 1', color: '#ff6b6b', categories: ['memes'], playCount: 0 },
-    { id: '2', name: 'Sound 2', color: '#4ecdc4', categories: ['gaming'], playCount: 0 },
-    { id: '3', name: 'Sound 3', color: '#45b7d1', categories: ['music'], playCount: 0 },
-    { id: '4', name: 'Sound 4', color: '#96ceb4', categories: ['effects'], playCount: 0 },
-    { id: '5', name: 'Sound 5', color: '#ffeaa7', categories: ['voice'], playCount: 0 },
-    { id: '6', name: 'Sound 6', color: '#dfe6e9', categories: ['animals'], playCount: 0 },
+    { id: '1', name: 'Sound 1', color: '#e74c3c', categories: ['memes'], playCount: 0 },
+    { id: '2', name: 'Sound 2', color: '#3498db', categories: ['gaming'], playCount: 0 },
+    { id: '3', name: 'Sound 3', color: '#2ecc71', categories: ['music'], playCount: 0 },
+    { id: '4', name: 'Sound 4', color: '#f39c12', categories: ['effects'], playCount: 0 },
+    { id: '5', name: 'Sound 5', color: '#9b59b6', categories: ['voice'], playCount: 0 },
+    { id: '6', name: 'Sound 6', color: '#1abc9c', categories: ['animals'], playCount: 0 },
   ]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
