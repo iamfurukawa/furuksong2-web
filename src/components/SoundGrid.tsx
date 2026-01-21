@@ -8,16 +8,17 @@ interface Sound {
   color: string;
   audioUrl?: string;
   categories?: string[];
+  playCount?: number;
 }
 
 const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selectedCategory: string }) => {
   const [sounds, setSounds] = useState<Sound[]>([
-    { id: '1', name: 'Sound 1', color: '#ff6b6b', categories: ['memes'] },
-    { id: '2', name: 'Sound 2', color: '#4ecdc4', categories: ['gaming'] },
-    { id: '3', name: 'Sound 3', color: '#45b7d1', categories: ['music'] },
-    { id: '4', name: 'Sound 4', color: '#96ceb4', categories: ['effects'] },
-    { id: '5', name: 'Sound 5', color: '#ffeaa7', categories: ['voice'] },
-    { id: '6', name: 'Sound 6', color: '#dfe6e9', categories: ['animals'] },
+    { id: '1', name: 'Sound 1', color: '#ff6b6b', categories: ['memes'], playCount: 0 },
+    { id: '2', name: 'Sound 2', color: '#4ecdc4', categories: ['gaming'], playCount: 0 },
+    { id: '3', name: 'Sound 3', color: '#45b7d1', categories: ['music'], playCount: 0 },
+    { id: '4', name: 'Sound 4', color: '#96ceb4', categories: ['effects'], playCount: 0 },
+    { id: '5', name: 'Sound 5', color: '#ffeaa7', categories: ['voice'], playCount: 0 },
+    { id: '6', name: 'Sound 6', color: '#dfe6e9', categories: ['animals'], playCount: 0 },
   ]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -31,7 +32,27 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
 
   const handleSoundClick = (sound: Sound) => {
     console.log(`Playing sound: ${sound.name}`);
-    // TODO: Implement audio playback
+    
+    // Incrementar contador de reproduções
+    setSounds(prevSounds => 
+      prevSounds.map(s => 
+        s.id === sound.id 
+          ? { ...s, playCount: (s.playCount || 0) + 1 }
+          : s
+      )
+    );
+    
+    // Se não há URL de áudio, não faz nada
+    if (!sound.audioUrl) {
+      console.warn('No audio URL available for this sound');
+      return;
+    }
+    
+    // Criar e reproduzir o áudio
+    const audio = new Audio(sound.audioUrl);
+    audio.play().catch(error => {
+      console.error('Error playing audio:', error);
+    });
   };
 
   const handleAddSound = (soundData: { name: string; file: File; categories: string[] }) => {
@@ -78,6 +99,18 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
                   <path d="M8 5v14l11-7z"/>
                 </svg>
+              </div>
+              {sound.categories && (
+                <div className="sound-categories">
+                  {sound.categories.map((category, index) => (
+                    <span key={index} className="category-badge">
+                      {category}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="play-count">
+                {sound.playCount || 0} plays
               </div>
             </div>
           </button>
