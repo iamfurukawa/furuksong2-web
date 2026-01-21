@@ -8,11 +8,23 @@ interface HeaderProps {
   onLogout: () => void;
   searchTerm: string;
   onSearchChange: (term: string) => void;
+  selectedCategory: string;
+  onCategoryChange: (category: string) => void;
 }
 
-const Header = ({ user, onLogout, searchTerm, onSearchChange }: HeaderProps) => {
+const Header = ({ user, onLogout, searchTerm, onSearchChange, selectedCategory, onCategoryChange }: HeaderProps) => {
   const { theme, toggleTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState(searchTerm);
+
+  const categories = [
+    { value: 'all', label: 'All Categories' },
+    { value: 'memes', label: 'Memes' },
+    { value: 'gaming', label: 'Gaming' },
+    { value: 'music', label: 'Music' },
+    { value: 'effects', label: 'Effects' },
+    { value: 'voice', label: 'Voice' },
+    { value: 'animals', label: 'Animals' }
+  ];
 
   return (
     <header className="header">
@@ -32,6 +44,17 @@ const Header = ({ user, onLogout, searchTerm, onSearchChange }: HeaderProps) => 
             }}
             className="search-input"
           />
+          <select
+            className="category-select"
+            value={selectedCategory}
+            onChange={(e) => onCategoryChange(e.target.value)}
+          >
+            {categories.map((category) => (
+              <option key={category.value} value={category.value}>
+                {category.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

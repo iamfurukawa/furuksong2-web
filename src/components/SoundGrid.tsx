@@ -7,23 +7,27 @@ interface Sound {
   name: string;
   color: string;
   audioUrl?: string;
+  categories?: string[];
 }
 
-const SoundGrid = ({ searchTerm }: { searchTerm: string }) => {
+const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selectedCategory: string }) => {
   const [sounds, setSounds] = useState<Sound[]>([
-    { id: '1', name: 'Sound 1', color: '#ff6b6b' },
-    { id: '2', name: 'Sound 2', color: '#4ecdc4' },
-    { id: '3', name: 'Sound 3', color: '#45b7d1' },
-    { id: '4', name: 'Sound 4', color: '#96ceb4' },
-    { id: '5', name: 'Sound 5', color: '#ffeaa7' },
-    { id: '6', name: 'Sound 6', color: '#dfe6e9' },
+    { id: '1', name: 'Sound 1', color: '#ff6b6b', categories: ['memes'] },
+    { id: '2', name: 'Sound 2', color: '#4ecdc4', categories: ['gaming'] },
+    { id: '3', name: 'Sound 3', color: '#45b7d1', categories: ['music'] },
+    { id: '4', name: 'Sound 4', color: '#96ceb4', categories: ['effects'] },
+    { id: '5', name: 'Sound 5', color: '#ffeaa7', categories: ['voice'] },
+    { id: '6', name: 'Sound 6', color: '#dfe6e9', categories: ['animals'] },
   ]);
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  const filteredSounds = sounds.filter(sound =>
-    sound.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredSounds = sounds.filter(sound => {
+    const matchesSearch = sound.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || 
+      (sound.categories && sound.categories.includes(selectedCategory));
+    return matchesSearch && matchesCategory;
+  });
 
   const handleSoundClick = (sound: Sound) => {
     console.log(`Playing sound: ${sound.name}`);
