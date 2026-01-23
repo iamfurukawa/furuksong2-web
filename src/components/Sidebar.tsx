@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRooms } from '../hooks/useRooms';
-import { useSocket } from '../hooks/useSocket';
-import { useAuth } from '../hooks/useAuth';
+import { useSocket } from '../hooks/useSocketSingleton';
 import './Sidebar.scss';
 
 interface User {
@@ -18,11 +17,14 @@ interface RoomWithUsers {
 
 const Sidebar = () => {
   const [selectedRoom, setSelectedRoom] = useState('general');
-  const { user } = useAuth();
-  const { rooms, loading, error } = useRooms();
-  const { connected, usersState, joinRoom, leaveRoom, currentRoom } = useSocket('ws://localhost:3000');
+  const [userName] = useState(() => {
+    const saved = localStorage.getItem('soundboard-user');
+    return saved || 'Guest User';
+  });
 
-  const userName = user?.name || 'Guest User';
+  const [lastJoinTime, setLastJoinTime] = useState(0);
+  const { rooms, loading, error } = useRooms();
+  const { connected, usersState, joinRoom, currentRoom } = useSocket('ws://localhost:3000');
 
   // Combine API rooms with WebSocket users state
   const roomsWithUsers: RoomWithUsers[] = rooms.map((room) => {
@@ -45,19 +47,18 @@ const Sidebar = () => {
   const handleRoomClick = (roomId: string) => {
     if (!connected) return;
     
+    // Debounce para evitar múltiplos cliques rápidos
+    const now = Date.now();
+    if (now - lastJoinTime < 500) return; // 500ms debounce
+    
     if (currentRoom === roomId) {
       console.log('Já está na sala:', roomId);
       return;
     }
     
-    const previousRoom = currentRoom;
+    setLastJoinTime(now);
     
-    // Sair da sala atual primeiro
-    if (previousRoom) {
-      leaveRoom(previousRoom);
-    }
-    
-    // Depois entrar na nova sala
+    // Entrar diretamente na nova sala (servidor vai sair da anterior automaticamente)
     joinRoom(roomId, userName);
     setSelectedRoom(roomId);
   };
@@ -67,15 +68,7 @@ const Sidebar = () => {
     if (connected && roomsWithUsers.length > 0 && !currentRoom) {
       console.log('WebSocket connected and rooms available, ready for manual room selection');
     }
-  }, [connected, roomsWithUsers, currentRoom]);
-
-  useEffect(() => {
-    return () => {
-      if (currentRoom && connected) {
-        leaveRoom(currentRoom);
-      }
-    };
-  }, [currentRoom, connected, leaveRoom]);
+  }, [connected, roomsWithUsers.length, currentRoom]);
 
   const getStatusColor = (status: User['status']) => {
     switch (status) {

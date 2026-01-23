@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
 
 interface User {
@@ -28,9 +28,22 @@ interface SocketFunctions {
   leaveRoom: (roomId: string) => void;
   playSound: (soundId: string) => void;
   disconnect: () => void;
+  onSoundPlayed?: (data: { 
+    soundId: string; 
+    triggeredBy: string; 
+    triggeredByName: string; 
+    timestamp: string;
+    roomId?: string;
+  }) => void;
 }
 
-export const useSocket = (serverUrl: string): SocketFunctions => {
+export const useSocket = (serverUrl: string, onSoundPlayed?: (data: { 
+    soundId: string; 
+    triggeredBy: string; 
+    triggeredByName: string; 
+    timestamp: string;
+    roomId?: string;
+  }) => void): SocketFunctions => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const [usersState, setUsersState] = useState<UsersState>({
@@ -40,12 +53,56 @@ export const useSocket = (serverUrl: string): SocketFunctions => {
     connectedUsers: []
   });
   const [currentRoom, setCurrentRoom] = useState<string | null>(null);
+  const socketRef = useRef<Socket | null>(null);
+  const initializedRef = useRef(false);
+
+  // Funções estáveis usando useCallback para evitar recriação
+  const joinRoom = useCallback((roomId: string, userName: string) => {
+    if (socket && connected) {
+      socket.emit('join-room', { roomId, name: userName });
+    }
+  }, [socket, connected]);
+
+  const leaveRoom = useCallback((roomId: string) => {
+    if (socket && connected) {
+      socket.emit('leave-room', { roomId });
+    }
+  }, [socket, connected]);
+
+  const playSound = useCallback((soundId: string) => {
+    if (socket && connected && soundId) {
+      socket.emit('play-sound', { soundId });
+    } else {
+      console.warn('Socket not connected, connected, or no soundId provided');
+    }
+  }, [socket, connected]);
+
+  const disconnect = useCallback(() => {
+    if (socket) {
+      socket.disconnect();
+    }
+  }, [socket]);
 
   useEffect(() => {
+    // Evitar múltiplas inicializações
+    if (initializedRef.current) {
+      console.log('Socket already initialized, skipping...');
+      return;
+    }
+
+    initializedRef.current = true;
+    console.log('Initializing socket connection...');
     const newSocket = io(serverUrl, {
       transports: ['websocket'],
-      upgrade: false
+      upgrade: false,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 20000,
     });
+
+    socketRef.current = newSocket;
 
     newSocket.on('connect', () => {
       console.log('Conectado ao servidor WebSocket');
@@ -58,6 +115,8 @@ export const useSocket = (serverUrl: string): SocketFunctions => {
       setConnected(false);
       setSocket(null);
       setCurrentRoom(null);
+      socketRef.current = null;
+      initializedRef.current = false; // Permitir reinitialização
     });
 
     newSocket.on('user-state-changed', (state: UsersState) => {
@@ -67,12 +126,12 @@ export const useSocket = (serverUrl: string): SocketFunctions => {
 
     newSocket.on('joined-room', (data: { roomId: string }) => {
       console.log('Entrou na sala:', data.roomId);
-      // Não atualizar currentRoom aqui para evitar race condition
+      setCurrentRoom(data.roomId);
     });
 
     newSocket.on('left-room', (data: { roomId: string }) => {
-      console.log('Saiu da sala:', data.roomId);
-      // Não atualizar currentRoom aqui para evitar race condition
+      console.log('Saiu na sala:', data.roomId);
+      setCurrentRoom(null);
     });
 
     newSocket.on('sound-played', (data: { 
@@ -82,47 +141,21 @@ export const useSocket = (serverUrl: string): SocketFunctions => {
       timestamp: string 
     }) => {
       console.log('Som tocado:', data);
-      // Aqui podemos adicionar lógica para mostrar notificações
+      
+      if (onSoundPlayed) {
+        onSoundPlayed(data);
+      }
     });
 
     return () => {
+      console.log('Cleaning up socket connection...');
       if (newSocket) {
         newSocket.disconnect();
       }
+      socketRef.current = null;
+      initializedRef.current = false;
     };
-  }, [serverUrl]);
-
-  const joinRoom = (roomId: string, userName: string) => {
-    if (socket) {
-      socket.emit('join-room', { roomId, name: userName });
-    }
-  };
-
-  const leaveRoom = (roomId: string) => {
-    if (socket) {
-      socket.emit('leave-room', { roomId });
-    }
-  };
-
-  const playSound = (soundId: string) => {
-    if (socket) {
-      socket.emit('play-sound', { soundId });
-    }
-  };
-
-  const disconnect = () => {
-    if (socket) {
-      socket.disconnect();
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (socket) {
-        socket.disconnect();
-      }
-    };
-  }, [socket]);
+  }, [serverUrl, onSoundPlayed]);
 
   return {
     socket,

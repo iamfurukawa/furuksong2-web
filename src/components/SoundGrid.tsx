@@ -1,12 +1,36 @@
 import { useState } from 'react';
 import AddSoundModal from './AddSoundModal';
 import { useSounds } from '../hooks/useSounds';
+import { useSocket } from '../hooks/useSocketSingleton';
 import type { Sound } from '../types/sound';
 import './SoundGrid.scss';
 
 const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selectedCategory: string }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { sounds, loading, error, createSound, incrementPlayCount } = useSounds();
+  const { playSound } = useSocket('ws://localhost:3000', (data) => {
+    console.log('Sound played in another tab:', data);
+    console.log('Available sounds:', sounds.map(s => ({ id: s.id, name: s.name })));
+    console.log('Looking for sound ID:', data.soundId);
+    
+    // Reproduz o som automaticamente quando tocado em outra guia
+    if (data.soundId) {
+      const sound = sounds.find(s => s.id === data.soundId);
+      console.log('Found sound:', sound ? { id: sound.id, name: sound.name, hasUrl: !!sound.url } : 'NOT FOUND');
+      
+      if (sound?.url) {
+        console.log('Auto-playing sound from another tab:', sound.name);
+        const audio = new Audio(sound.url);
+        audio.play().catch(error => {
+          console.error('Error auto-playing audio:', error);
+        });
+      } else {
+        console.warn('Sound found but no URL available');
+      }
+    } else {
+      console.warn('No soundId provided in sound-played event');
+    }
+  });
 
   const filteredSounds = sounds.filter(sound => {
     const matchesSearch = sound.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -22,9 +46,13 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
   };
 
   const handleSoundClick = (sound: Sound) => {
-    console.log(`Playing sound: ${sound.name}`);
+    console.log(`Playing sound: ${sound.name}, ID: ${sound.id}`);
     
     incrementPlayCount(sound.id);
+    
+    // Envia evento WebSocket para tocar som na sala atual
+    console.log('Sending play-sound event for sound:', sound.id);
+    playSound(sound.id);
     
     if (!sound.url) {
       console.warn('No audio URL available for this sound');
