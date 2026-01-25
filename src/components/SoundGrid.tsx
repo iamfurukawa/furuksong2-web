@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import AddSoundModal from './AddSoundModal';
 import { useSounds } from '../hooks/useSounds';
 import { useSocket } from '../hooks/useSocket';
@@ -8,22 +8,41 @@ import './SoundGrid.scss';
 const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selectedCategory: string }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { sounds, loading, error, createSound } = useSounds();
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const { playSound } = useSocket((data) => {
     // Reproduz o som automaticamente quando tocado em outra guia
     if (data.soundId) {
       const sound = sounds.find(s => s.id === data.soundId);
       
       if (sound?.url) {
+        // Verificar se o mesmo som já está tocando
+        if (currentAudioRef.current && currentAudioRef.current.src === sound.url) {
+          // Parar o som se já estiver tocando
+          currentAudioRef.current.pause();
+          currentAudioRef.current.currentTime = 0;
+          currentAudioRef.current = null;
+          return;
+        }
+        
+        // Pausar qualquer som que esteja tocando
+        if (currentAudioRef.current) {
+          currentAudioRef.current.pause();
+          currentAudioRef.current.currentTime = 0;
+        }
+        
         console.log('Auto-playing sound from another tab:', sound.name);
         const audio = new Audio(sound.url);
+        currentAudioRef.current = audio;
+        
         audio.play().catch(error => {
           console.error('Error auto-playing audio:', error);
         });
-      } else {
-        console.warn('Sound found but no URL available');
+        
+        // Limpar referência quando o som terminar
+        audio.addEventListener('ended', () => {
+          currentAudioRef.current = null;
+        });
       }
-    } else {
-      console.warn('No soundId provided in sound-played event');
     }
   });
 
