@@ -17,21 +17,35 @@ const AddSoundModal = ({ isOpen, onClose, onAddSound }: AddSoundModalProps) => {
   const [name, setName] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [categorySearchTerm, setCategorySearchTerm] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { categories, loading, error } = useCategories();
 
-  const categoryColors = [
-    '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', 
-    '#ffeaa7', '#dfe6e9', '#fd79a8', '#a29bfe',
-    '#6c5ce7', '#00b894', '#00cec9', '#0984e3'
-  ];
+  const getSoundColor = (index: number) => {
+    // Usa HSL para criar cores sequenciais em tons pasteis
+    const hue = (index * 137.5) % 360; // 137.5° é ângulo dourado para melhor distribuição
+    return `hsl(${hue}, 55%, 60%)`;
+  };
+
+  const filteredCategories = (categories || []).filter(category =>
+    category.label.toLowerCase().includes(categorySearchTerm.toLowerCase()) &&
+    !selectedCategories.includes(category.id)
+  );
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validação simples de arquivo de áudio
-      if (!file.type.startsWith('audio/')) {
-        alert('Por favor, selecione um arquivo de áudio válido.');
+      // Validação de arquivo .mp3
+      if (file.type !== 'audio/mpeg' && !file.name.toLowerCase().endsWith('.mp3')) {
+        alert('Por favor, selecione um arquivo MP3 válido.');
+        e.target.value = ''; // Limpa o input
+        return;
+      }
+      
+      // Validação de tamanho (1MB = 1048576 bytes)
+      if (file.size > 1048576) {
+        alert('O arquivo deve ter no máximo 1MB.');
+        e.target.value = ''; // Limpa o input
         return;
       }
     }
@@ -85,7 +99,7 @@ const AddSoundModal = ({ isOpen, onClose, onAddSound }: AddSoundModalProps) => {
 
   const getCategoryColor = (categoryId: string) => {
     const index = categories.findIndex(cat => cat.id === categoryId);
-    return categoryColors[index % categoryColors.length];
+    return getSoundColor(index);
   };
 
   return (
@@ -110,25 +124,39 @@ const AddSoundModal = ({ isOpen, onClose, onAddSound }: AddSoundModalProps) => {
             type="file"
             ref={fileInputRef}
             onChange={handleFileSelect}
-            accept="audio/*"
+            accept=".mp3,audio/mpeg"
             required
           />
-          <small className="form-hint">Supported formats: MP3, WAV, OGG, M4A</small>
+          <small className="form-hint">Format: MP3 (max 1MB)</small>
         </div>
 
         <div className="form-group">
           <label>Categories</label>
           <div className="category-selector">
-            <button
-              type="button"
-              className="category-dropdown-button"
-              onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-            >
-              <span>Select Categories</span>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M7 10l5 5 5-5z"/>
-              </svg>
-            </button>
+            <div className="category-input-wrapper">
+              <input
+                type="text"
+                value={categorySearchTerm}
+                onChange={(e) => setCategorySearchTerm(e.target.value)}
+                onFocus={() => setShowCategoryDropdown(true)}
+                placeholder="Type to search categories..."
+                className="category-search-input"
+              />
+              {showCategoryDropdown && (
+                <button
+                  type="button"
+                  className="category-clear-button"
+                  onClick={() => {
+                    setCategorySearchTerm('');
+                    setShowCategoryDropdown(false);
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                  </svg>
+                </button>
+              )}
+            </div>
             
             {showCategoryDropdown && (
               <div className="category-dropdown">
@@ -136,21 +164,25 @@ const AddSoundModal = ({ isOpen, onClose, onAddSound }: AddSoundModalProps) => {
                   <div className="loading-categories">Loading categories...</div>
                 ) : error ? (
                   <div className="error-categories">Error loading categories</div>
+                ) : filteredCategories.length === 0 ? (
+                  <div className="no-categories">No categories found</div>
                 ) : (
-                  (categories || []).map((category) => (
-                    <label key={category.id} className="category-item">
-                      <input
-                        type="checkbox"
-                        checked={selectedCategories.includes(category.id)}
-                        onChange={() => toggleCategory(category.id)}
-                      />
+                  filteredCategories.map((category) => (
+                    <div 
+                      key={category.id} 
+                      className="category-item"
+                      onClick={() => {
+                        toggleCategory(category.id);
+                        setCategorySearchTerm('');
+                      }}
+                    >
                       <span 
                         className="category-badge"
                         style={{ backgroundColor: getCategoryColor(category.id) }}
                       >
                         {category.label}
                       </span>
-                    </label>
+                    </div>
                   ))
                 )}
               </div>

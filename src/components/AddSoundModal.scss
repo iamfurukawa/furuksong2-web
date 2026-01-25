@@ -15,14 +15,21 @@
     input[type="text"] {
       width: 100%;
       padding: $spacing-sm;
-      border: 2px solid #e5e7eb;
+      border: 2px solid #e1e5e9;
       border-radius: $border-radius-sm;
       font-size: 1em;
-      transition: border-color 0.2s;
+      background-color: #f8f9fa;
+      color: #333 !important;
+      transition: border-color 0.3s;
+
+      &::placeholder {
+        color: #999 !important;
+      }
 
       &:focus {
         outline: none;
         border-color: $primary-color;
+        color: #333 !important;
       }
     }
 
@@ -50,29 +57,43 @@
   .category-selector {
     position: relative;
 
-    .category-dropdown-button {
-      width: 100%;
-      padding: $spacing-sm;
-      border: 2px solid #e5e7eb;
-      border-radius: $border-radius-sm;
-      background: $background-light;
-      cursor: pointer;
+    .category-input-wrapper {
+      position: relative;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      font-size: 1em;
-      transition: border-color 0.2s;
 
-      &:hover {
-        border-color: $primary-color;
+      .category-search-input {
+        width: 100%;
+        padding: $spacing-sm;
+        border: 2px solid #e5e7eb;
+        border-radius: $border-radius-sm;
+        font-size: 1em;
+        background: $background-light;
+        transition: border-color 0.2s;
+
+        &:focus {
+          outline: none;
+          border-color: $primary-color;
+        }
       }
 
-      svg {
-        transition: transform 0.2s;
-      }
+      .category-clear-button {
+        position: absolute;
+        right: $spacing-xs;
+        background: none;
+        border: none;
+        padding: $spacing-xs;
+        cursor: pointer;
+        color: #6b7280;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s;
 
-      &.open svg {
-        transform: rotate(180deg);
+        &:hover {
+          color: $text-dark;
+        }
       }
     }
 
@@ -101,10 +122,6 @@
           background-color: #f3f4f6;
         }
 
-        input[type="checkbox"] {
-          margin-right: $spacing-sm;
-        }
-
         .category-badge {
           display: inline-block;
           padding: $spacing-xs $spacing-sm;
@@ -113,6 +130,13 @@
           font-size: 0.9em;
           font-weight: 500;
         }
+      }
+
+      .no-categories {
+        padding: $spacing-sm;
+        text-align: center;
+        color: #6b7280;
+        font-style: italic;
       }
     }
   }
