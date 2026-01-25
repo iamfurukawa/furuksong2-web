@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRooms } from '../hooks/useRooms';
-import { useSocket } from '../hooks/useSocketSingleton';
+import { useSocket } from '../hooks/useSocket';
 import './Sidebar.scss';
 
 interface User {

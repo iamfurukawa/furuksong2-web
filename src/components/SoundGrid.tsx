@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import AddSoundModal from './AddSoundModal';
 import { useSounds } from '../hooks/useSounds';
-import { useSocket } from '../hooks/useSocketSingleton';
+import { useSocket } from '../hooks/useSocket';
 import type { Sound } from '../types/sound';
 import './SoundGrid.scss';
 
