@@ -32,16 +32,6 @@ export const useSounds = () => {
     }
   };
 
-  const incrementPlayCount = (soundId: string) => {
-    setSounds(prevSounds => 
-      prevSounds.map(s => 
-        s.id === soundId 
-          ? { ...s, playCount: s.playCount + 1 }
-          : s
-      )
-    );
-  };
-
   useEffect(() => {
     fetchSounds();
   }, []);
@@ -52,6 +42,5 @@ export const useSounds = () => {
     error,
     refetch: fetchSounds,
     createSound,
-    incrementPlayCount,
   };
 };

@@ -7,7 +7,7 @@ import './SoundGrid.scss';
 
 const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selectedCategory: string }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const { sounds, loading, error, createSound, incrementPlayCount } = useSounds();
+  const { sounds, loading, error, createSound } = useSounds();
   const { playSound } = useSocket('ws://localhost:3000', (data) => {
     console.log('Sound played in another tab:', data);
     console.log('Available sounds:', sounds.map(s => ({ id: s.id, name: s.name })));
@@ -47,8 +47,6 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
 
   const handleSoundClick = (sound: Sound) => {
     console.log(`Playing sound: ${sound.name}, ID: ${sound.id}`);
-    
-    incrementPlayCount(sound.id);
     
     // Envia evento WebSocket para tocar som na sala atual
     console.log('Sending play-sound event for sound:', sound.id);
@@ -123,9 +121,6 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
                       ))}
                     </div>
                   )}
-                  <div className="play-count">
-                    {sound.playCount} plays
-                  </div>
                 </div>
               </button>
             ))}
