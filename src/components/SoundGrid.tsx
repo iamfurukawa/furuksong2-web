@@ -30,7 +30,7 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
           currentAudioRef.current.currentTime = 0;
         }
         
-        console.log('Auto-playing sound from another tab:', sound.name);
+        console.log('Playing Audio:', sound.name);
         const audio = new Audio(sound.url);
         currentAudioRef.current = audio;
         
