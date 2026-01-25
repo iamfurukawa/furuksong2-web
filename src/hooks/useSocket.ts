@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 
+const SocketEvents = {
+  USER_STATE_CHANGED: 'user-state-changed',
+  SOUND_PLAYED: 'sound-played',
+  JOIN_ROOM: 'join-room',
+  PLAY_SOUND: 'play-sound',
+} as const;
+
 interface User {
   socketId: string;
   name: string;
@@ -21,8 +28,7 @@ interface SocketFunctions {
   connected: boolean;
   usersState: UsersState;
   currentRoom: string | null;
-  joinRoom: (roomId: string, userName: string) => void;
-  leaveRoom: (roomId: string) => void;
+  joinRoom: (roomId: string, name: string) => void;
   playSound: (soundId: string) => void;
   disconnect: () => void;
   onSoundPlayed?: (data: { 
@@ -97,25 +103,13 @@ const initializeSocket = (serverUrl: string) => {
     notifyListeners();
   });
 
-  newSocket.on('user-state-changed', (state: UsersState) => {
+  newSocket.on(SocketEvents.USER_STATE_CHANGED, (state: UsersState) => {
     console.log('Estado dos usuários atualizado:', state);
     globalState.usersState = state;
     notifyListeners();
   });
 
-  newSocket.on('joined-room', (data: { roomId: string }) => {
-    console.log('Entrou na sala:', data.roomId);
-    globalState.currentRoom = data.roomId;
-    notifyListeners();
-  });
-
-  newSocket.on('left-room', (data: { roomId: string }) => {
-    console.log('Saiu na sala:', data.roomId);
-    globalState.currentRoom = null;
-    notifyListeners();
-  });
-
-  newSocket.on('sound-played', (data: { 
+  newSocket.on(SocketEvents.SOUND_PLAYED, (data: { 
     soundId: string; 
     triggeredBy: string; 
     triggeredByName: string; 
@@ -133,7 +127,7 @@ const notifyListeners = () => {
   listeners.forEach(listener => listener());
 };
 
-export const useSocket = (serverUrl: string, onSoundPlayed?: (data: { 
+export const useSocket = (onSoundPlayed?: (data: { 
     soundId: string; 
     triggeredBy: string; 
     triggeredByName: string; 
@@ -141,6 +135,7 @@ export const useSocket = (serverUrl: string, onSoundPlayed?: (data: {
     roomId?: string;
   }) => void): SocketFunctions => {
   const [, forceUpdate] = useState({});
+  const serverUrl = import.meta.env.VITE_FURUKSONG2_WEBSOCKET_URL;
 
   // Atualizar callbacks
   globalCallbacks.onSoundPlayed = onSoundPlayed;
@@ -158,26 +153,18 @@ export const useSocket = (serverUrl: string, onSoundPlayed?: (data: {
     return () => {
       listeners.delete(listener);
     };
-  }, [serverUrl, onSoundPlayed]);
+  }, [onSoundPlayed]);
 
   // Funções
-  const joinRoom = (roomId: string, userName: string) => {
+  const joinRoom = (roomId: string, name: string) => {
     if (globalSocket && globalState.connected) {
-      globalSocket.emit('join-room', { roomId, name: userName });
-    }
-  };
-
-  const leaveRoom = (roomId: string) => {
-    if (globalSocket && globalState.connected) {
-      globalSocket.emit('leave-room', { roomId });
+      globalSocket.emit(SocketEvents.JOIN_ROOM, { roomId, name });
     }
   };
 
   const playSound = (soundId: string) => {
     if (globalSocket && globalState.connected && soundId) {
-      globalSocket.emit('play-sound', { soundId });
-    } else {
-      console.warn('Socket not connected, connected, or no soundId provided');
+      globalSocket.emit(SocketEvents.PLAY_SOUND, { soundId });
     }
   };
 
@@ -193,7 +180,6 @@ export const useSocket = (serverUrl: string, onSoundPlayed?: (data: {
     usersState: globalState.usersState,
     currentRoom: globalState.currentRoom,
     joinRoom,
-    leaveRoom,
     playSound,
     disconnect,
     onSoundPlayed

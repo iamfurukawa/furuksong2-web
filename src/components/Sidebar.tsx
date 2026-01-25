@@ -24,7 +24,7 @@ const Sidebar = () => {
 
   const [lastJoinTime, setLastJoinTime] = useState(0);
   const { rooms, loading, error } = useRooms();
-  const { connected, usersState, joinRoom, currentRoom } = useSocket('ws://localhost:3000');
+  const { connected, usersState, joinRoom, currentRoom } = useSocket();
 
   // Combine API rooms with WebSocket users state
   const roomsWithUsers: RoomWithUsers[] = (rooms || []).map((room) => {

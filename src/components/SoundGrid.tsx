@@ -8,15 +8,10 @@ import './SoundGrid.scss';
 const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selectedCategory: string }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { sounds, loading, error, createSound } = useSounds();
-  const { playSound } = useSocket('ws://localhost:3000', (data) => {
-    console.log('Sound played in another tab:', data);
-    console.log('Available sounds:', sounds.map(s => ({ id: s.id, name: s.name })));
-    console.log('Looking for sound ID:', data.soundId);
-    
+  const { playSound } = useSocket((data) => {
     // Reproduz o som automaticamente quando tocado em outra guia
     if (data.soundId) {
       const sound = sounds.find(s => s.id === data.soundId);
-      console.log('Found sound:', sound ? { id: sound.id, name: sound.name, hasUrl: !!sound.url } : 'NOT FOUND');
       
       if (sound?.url) {
         console.log('Auto-playing sound from another tab:', sound.name);
