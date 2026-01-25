@@ -53,16 +53,13 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
     return matchesSearch && matchesCategory;
   });
 
-  const getSoundColor = (soundId: string) => {
-    const colors = ['#e74c3c', '#3498db', '#2ecc71', '#f39c12', '#9b59b6', '#1abc9c'];
-    const index = parseInt(soundId, 10) % colors.length;
-    return colors[index];
+  const getSoundColor = (index: number) => {
+    // Usa HSL para criar cores sequenciais em tons pasteis
+    const hue = (index * 137.5) % 360; // 137.5° é ângulo dourado para melhor distribuição
+    return `hsl(${hue}, 55%, 60%)`; // Saturação 50% e Luminosidade 85% para tons pasteis
   };
 
   const handleSoundClick = (sound: Sound) => {
-    console.log(`Playing sound: ${sound.name}, ID: ${sound.id}`);
-    
-    // Envia evento WebSocket para tocar som na sala atual
     console.log('Sending play-sound event for sound:', sound.id);
     playSound(sound.id);
   };
@@ -102,11 +99,11 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
               </div>
             </button>
 
-            {filteredSounds.map((sound) => (
+            {filteredSounds.map((sound, index) => (
               <button
                 key={sound.id}
                 className="sound-button"
-                style={{ backgroundColor: getSoundColor(sound.id) }}
+                style={{ backgroundColor: getSoundColor(index) }}
                 onClick={() => handleSoundClick(sound)}
               >
                 <div className="sound-content">
