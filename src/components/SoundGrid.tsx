@@ -46,16 +46,6 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
     // Envia evento WebSocket para tocar som na sala atual
     console.log('Sending play-sound event for sound:', sound.id);
     playSound(sound.id);
-    
-    if (!sound.url) {
-      console.warn('No audio URL available for this sound');
-      return;
-    }
-    
-    const audio = new Audio(sound.url);
-    audio.play().catch(error => {
-      console.error('Error playing audio:', error);
-    });
   };
 
   const handleAddSound = async (soundData: { name: string; file: File; categories: string[] }) => {
