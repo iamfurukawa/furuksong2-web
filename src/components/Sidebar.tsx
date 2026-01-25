@@ -21,7 +21,6 @@ const Sidebar = () => {
     return saved || 'Guest User';
   });
 
-  const [lastJoinTime, setLastJoinTime] = useState(0);
   const { rooms, loading, error } = useRooms();
   const { connected, usersState, joinRoom, currentRoom } = useSocket();
 
@@ -45,16 +44,7 @@ const Sidebar = () => {
   const handleRoomClick = (roomId: string) => {
     if (!connected) return;
     
-    // Debounce para evitar múltiplos cliques rápidos
-    const now = Date.now();
-    if (now - lastJoinTime < 500) return; // 500ms debounce
-    
-    if (currentRoom === roomId) {
-      console.log('Já está na sala:', roomId);
-      return;
-    }
-    
-    setLastJoinTime(now);
+    if (currentRoom === roomId) return;
     
     // Entrar diretamente na nova sala (servidor vai sair da anterior automaticamente)
     joinRoom(roomId, userName);
