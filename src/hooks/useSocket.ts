@@ -8,12 +8,9 @@ interface User {
 }
 
 interface UsersState {
-  totalUsers: number;
-  totalRooms: number;
   rooms: {
     [roomId: string]: {
       users: { socketId: string; name: string }[];
-      count: number;
     };
   };
   connectedUsers: User[];
@@ -47,8 +44,6 @@ export const useSocket = (serverUrl: string, onSoundPlayed?: (data: {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const [usersState, setUsersState] = useState<UsersState>({
-    totalUsers: 0,
-    totalRooms: 0,
     rooms: {},
     connectedUsers: []
   });

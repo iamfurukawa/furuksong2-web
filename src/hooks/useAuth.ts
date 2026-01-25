@@ -1,24 +1,19 @@
 import { useState, useEffect } from 'react';
 
-export interface User {
-  name: string;
-}
-
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('soundboard-user');
     if (storedUser) {
-      setUser({ name: storedUser });
+      setUser(storedUser);
     }
     setIsLoading(false);
   }, []);
 
   const login = (name: string) => {
-    const user = { name };
-    setUser(user);
+    setUser(name);
     localStorage.setItem('soundboard-user', name);
   };
 

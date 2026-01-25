@@ -8,12 +8,9 @@ interface User {
 }
 
 interface UsersState {
-  totalUsers: number;
-  totalRooms: number;
   rooms: {
     [roomId: string]: {
       users: { socketId: string; name: string }[];
-      count: number;
     };
   };
   connectedUsers: User[];
@@ -59,8 +56,6 @@ let globalState: {
 } = {
   connected: false,
   usersState: {
-    totalUsers: 0,
-    totalRooms: 0,
     rooms: {},
     connectedUsers: []
   },
