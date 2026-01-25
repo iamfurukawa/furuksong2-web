@@ -20,28 +20,6 @@ export const useRooms = () => {
     }
   };
 
-  const createRoom = async (name: string) => {
-    try {
-      const newRoom = await roomService.createRoom(name);
-      setRooms(prev => [...prev, newRoom]);
-      return newRoom;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create room';
-      setError(errorMessage);
-      throw err;
-    }
-  };
-
-  const deleteRoom = async (id: string) => {
-    try {
-      await roomService.deleteRoom(id);
-      setRooms(prev => prev.filter(room => room.id !== id));
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to delete room';
-      setError(errorMessage);
-      throw err;
-    }
-  };
 
   useEffect(() => {
     fetchRooms();
@@ -52,7 +30,5 @@ export const useRooms = () => {
     loading,
     error,
     refetch: fetchRooms,
-    createRoom,
-    deleteRoom,
   };
 };
