@@ -6,7 +6,6 @@ import './Sidebar.scss';
 interface User {
   id: string;
   name: string;
-  status: 'online' | 'idle' | 'offline';
 }
 
 interface RoomWithUsers {
@@ -32,8 +31,7 @@ const Sidebar = () => {
     const displayUsers = wsRoomUsers.length > 0 
       ? wsRoomUsers.map((user: any) => ({
           id: user.socketId,
-          name: user.name,
-          status: 'online' as const
+          name: user.name
         }))
       : []; // No fallback users when no real users
 
@@ -70,15 +68,6 @@ const Sidebar = () => {
     }
   }, [connected, roomsWithUsers.length, currentRoom]);
 
-  const getStatusColor = (status: User['status']) => {
-    switch (status) {
-      case 'online': return '#43b581';
-      case 'idle': return '#faa61a';
-      case 'offline': return '#747f8d';
-      default: return '#747f8d';
-    }
-  };
-
   const getAllOnlineUsers = () => {
     const allOnlineUsers: (User & { roomName: string })[] = [];
     
@@ -89,7 +78,6 @@ const Sidebar = () => {
           allOnlineUsers.push({
             id: user.socketId,
             name: user.name,
-            status: 'online' as const,
             roomName: room.name
           });
         });
@@ -139,7 +127,7 @@ const Sidebar = () => {
               <div key={user.id} className="user-item">
                 <div 
                   className="status-indicator"
-                  style={{ backgroundColor: getStatusColor(user.status) }}
+                  style={{ backgroundColor: '#43b581' }}
                 />
                 <span className="user-name">{user.name}</span>
               </div>
@@ -154,7 +142,7 @@ const Sidebar = () => {
             <div key={`${user.id}-${user.roomName}`} className="user-item">
               <div 
                 className="status-indicator"
-                style={{ backgroundColor: getStatusColor(user.status) }}
+                style={{ backgroundColor: '#43b581' }}
               />
               <span className="user-name">{user.name}</span>
               <span className="room-tag">{user.roomName}</span>
