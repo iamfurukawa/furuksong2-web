@@ -32,7 +32,7 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
     }
   });
 
-  const filteredSounds = sounds.filter(sound => {
+  const filteredSounds = (sounds || []).filter(sound => {
     const matchesSearch = sound.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || 
       sound.categories.some(category => category.id === selectedCategory);

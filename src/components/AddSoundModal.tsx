@@ -137,7 +137,7 @@ const AddSoundModal = ({ isOpen, onClose, onAddSound }: AddSoundModalProps) => {
                 ) : error ? (
                   <div className="error-categories">Error loading categories</div>
                 ) : (
-                  categories.map((category) => (
+                  (categories || []).map((category) => (
                     <label key={category.id} className="category-item">
                       <input
                         type="checkbox"

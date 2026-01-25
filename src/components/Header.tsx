@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useCategories } from '../hooks/useCategories';
-import type { User } from '../hooks/useAuth';
 import './Header.scss';
-
 interface HeaderProps {
-  user: User | null;
+  user: { name: string } | null;
   onLogout: () => void;
   searchTerm: string;
   onSearchChange: (term: string) => void;
@@ -20,7 +18,7 @@ const Header = ({ user, onLogout, searchTerm, onSearchChange, selectedCategory, 
 
   const categoryOptions = [
     { value: 'all', label: 'All Categories' },
-    ...categories.map((category) => ({
+    ...(categories || []).map((category) => ({
       value: category.id,
       label: category.label,
     })),

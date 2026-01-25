@@ -27,7 +27,7 @@ const Sidebar = () => {
   const { connected, usersState, joinRoom, currentRoom } = useSocket('ws://localhost:3000');
 
   // Combine API rooms with WebSocket users state
-  const roomsWithUsers: RoomWithUsers[] = rooms.map((room) => {
+  const roomsWithUsers: RoomWithUsers[] = (rooms || []).map((room) => {
     const wsRoomUsers = usersState.rooms[room.id]?.users || [];
     const displayUsers = wsRoomUsers.length > 0 
       ? wsRoomUsers.map((user: any) => ({
@@ -131,7 +131,7 @@ const Sidebar = () => {
       </div>
 
       <div className="sidebar-section">
-        <h3>Room Users</h3>
+        <h3>Users in this room</h3>
         <div className="user-list">
           {roomsWithUsers
             .find((room) => room.id === selectedRoom)
@@ -148,7 +148,7 @@ const Sidebar = () => {
       </div>
 
       <div className="sidebar-section">
-        <h3>Who's Online</h3>
+        <h3>Where is?</h3>
         <div className="user-list">
           {getAllOnlineUsers().map((user) => (
             <div key={`${user.id}-${user.roomName}`} className="user-item">
