@@ -27,10 +27,21 @@ const AddSoundModal = ({ isOpen, onClose, onAddSound }: AddSoundModalProps) => {
     return `hsl(${hue}, 55%, 60%)`;
   };
 
-  const filteredCategories = (categories || []).filter(category =>
-    category.label.toLowerCase().includes(categorySearchTerm.toLowerCase()) &&
-    !selectedCategories.includes(category.id)
-  );
+  // Função para capitalizar a primeira letra de cada palavra
+  const capitalizeText = (text: string) => {
+    return text
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const filteredCategories = (categories || [])
+    .sort((a, b) => a.label.localeCompare(b.label))
+    .filter(category =>
+      category.label.toLowerCase().includes(categorySearchTerm.toLowerCase()) &&
+      !selectedCategories.includes(category.id)
+    );
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -180,7 +191,7 @@ const AddSoundModal = ({ isOpen, onClose, onAddSound }: AddSoundModalProps) => {
                         className="category-badge"
                         style={{ backgroundColor: getCategoryColor(category.id) }}
                       >
-                        {category.label}
+                        {capitalizeText(category.label)}
                       </span>
                     </div>
                   ))

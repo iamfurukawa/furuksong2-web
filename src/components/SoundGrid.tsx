@@ -89,6 +89,15 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
     }
   };
 
+  // Função para capitalizar a primeira letra de cada palavra
+  const capitalizeText = (text: string) => {
+    return text
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   return (
     <div className="sound-grid">
       <div className="sound-grid-container">
@@ -117,7 +126,7 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
                 onClick={() => handleSoundClick(sound)}
               >
                 <div className="sound-content">
-                  <span className="sound-name">{sound.name}</span>
+                  <span className="sound-name">{capitalizeText(sound.name)}</span>
                   <div className="play-icon">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
                       <path d="M8 5v14l11-7z"/>
@@ -127,7 +136,7 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
                     <div className="sound-categories">
                       {sound.categories.map((category, index) => (
                         <span key={index} className="category-badge">
-                          {category.label}
+                          {capitalizeText(category.label)}
                         </span>
                       ))}
                     </div>

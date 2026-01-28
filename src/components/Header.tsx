@@ -3,6 +3,15 @@ import { useTheme } from '../hooks/useTheme';
 import { useCategories } from '../hooks/useCategories';
 import VolumeControl from './VolumeControl';
 import './Header.scss';
+
+// Função para capitalizar a primeira letra de cada palavra
+const capitalizeText = (text: string) => {
+  return text
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
 interface HeaderProps {
   user: { name: string } | null;
   onLogout: () => void;
@@ -19,10 +28,12 @@ const Header = ({ user, onLogout, searchTerm, onSearchChange, selectedCategory, 
 
   const categoryOptions = [
     { value: 'all', label: 'All Categories' },
-    ...(categories || []).map((category) => ({
-      value: category.id,
-      label: category.label,
-    })),
+    ...(categories || [])
+      .sort((a, b) => a.label.localeCompare(b.label))
+      .map((category) => ({
+        value: category.id,
+        label: capitalizeText(category.label),
+      })),
   ];
 
   return (
