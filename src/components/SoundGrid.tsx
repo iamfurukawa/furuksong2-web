@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import AddSoundModal from './AddSoundModal';
 import { useSounds } from '../hooks/useSounds';
 import { useSocket } from '../hooks/useSocket';
+import { useVolumeContext } from '../contexts/VolumeContext';
 import type { Sound } from '../types/sound';
 import './SoundGrid.scss';
 
@@ -9,6 +10,14 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const { sounds, loading, error, createSound } = useSounds();
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const { volume, isMuted } = useVolumeContext();
+  
+  // Atualizar volume do áudio atual quando o volume mudar
+  useEffect(() => {
+    if (currentAudioRef.current) {
+      currentAudioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted]);
   const { playSound } = useSocket((data) => {
     // Reproduz o som automaticamente quando tocado em outra guia
     if (data.soundId) {
@@ -32,6 +41,7 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
         
         console.log('Playing Audio:', sound.name);
         const audio = new Audio(sound.url);
+        audio.volume = isMuted ? 0 : volume; // Aplicar volume global
         currentAudioRef.current = audio;
         
         audio.play().catch(error => {

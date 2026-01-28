@@ -9,6 +9,7 @@
   color: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s ease;
+  min-height: 60px;
 
   body[data-theme='dark'] & {
     background-color: #c44569;
@@ -26,53 +27,61 @@
 
   .header-center {
     flex: 1;
-    max-width: 400px;
+    max-width: 500px;
     margin: 0 $spacing-lg;
 
-    .search-container {
+    .search-with-volume {
       display: flex;
-      gap: $spacing-xs;
+      align-items: center;
+      gap: $spacing-sm;
+      height: 100%;
 
-      .search-input {
+      .search-container {
+        display: flex;
+        gap: $spacing-xs;
         flex: 1;
-        padding: $spacing-xs $spacing-sm;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: $border-radius-sm;
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-        font-size: 0.9em;
-        transition: all 0.2s;
 
-        &::placeholder {
-          color: rgba(255, 255, 255, 0.7);
-        }
-
-        &:focus {
-          outline: none;
-          border-color: rgba(255, 255, 255, 0.5);
-          background-color: rgba(255, 255, 255, 0.15);
-        }
-      }
-
-      .category-select {
-        padding: $spacing-xs $spacing-sm;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: $border-radius-sm;
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-        font-size: 0.9em;
-        transition: all 0.2s;
-        cursor: pointer;
-
-        &:focus {
-          outline: none;
-          border-color: rgba(255, 255, 255, 0.5);
-          background-color: rgba(255, 255, 255, 0.15);
-        }
-
-        option {
-          background-color: #2f3136;
+        .search-input {
+          flex: 1;
+          padding: $spacing-xs $spacing-sm;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: $border-radius-sm;
+          background-color: rgba(255, 255, 255, 0.1);
           color: white;
+          font-size: 0.9em;
+          transition: all 0.2s;
+
+          &::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+          }
+
+          &:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.15);
+          }
+        }
+
+        .category-select {
+          padding: $spacing-xs $spacing-sm;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          border-radius: $border-radius-sm;
+          background-color: rgba(255, 255, 255, 0.1);
+          color: white;
+          font-size: 0.9em;
+          transition: all 0.2s;
+          cursor: pointer;
+
+          &:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.15);
+          }
+
+          option {
+            background-color: #2f3136;
+            color: white;
+          }
         }
       }
     }

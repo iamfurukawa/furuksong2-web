@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { useCategories } from '../hooks/useCategories';
+import VolumeControl from './VolumeControl';
 import './Header.scss';
 interface HeaderProps {
   user: { name: string } | null;
@@ -31,35 +32,38 @@ const Header = ({ user, onLogout, searchTerm, onSearchChange, selectedCategory, 
       </div>
       
       <div className="header-center">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Pesquisar sons..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              onSearchChange(e.target.value);
-            }}
-            className="search-input"
-          />
-          <select
-            className="category-select"
-            value={selectedCategory}
-            onChange={(e) => onCategoryChange(e.target.value)}
-            disabled={loading}
-          >
-            {loading ? (
-              <option>Loading categories...</option>
-            ) : error ? (
-              <option>Error loading categories</option>
-            ) : (
-              categoryOptions.map((category) => (
-                <option key={category.value} value={category.value}>
-                  {category.label}
-                </option>
-              ))
-            )}
-          </select>
+        <div className="search-with-volume">
+          <VolumeControl />
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Pesquisar sons..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                onSearchChange(e.target.value);
+              }}
+              className="search-input"
+            />
+            <select
+              className="category-select"
+              value={selectedCategory}
+              onChange={(e) => onCategoryChange(e.target.value)}
+              disabled={loading}
+            >
+              {loading ? (
+                <option>Loading categories...</option>
+              ) : error ? (
+                <option>Error loading categories</option>
+              ) : (
+                categoryOptions.map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
         </div>
       </div>
 
