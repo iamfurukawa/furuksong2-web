@@ -5,6 +5,8 @@ const SocketEvents = {
   USER_STATE_CHANGED: 'user-state-changed',
   SOUND_PLAYED: 'sound-played',
   JOIN_ROOM: 'join-room',
+  LEAVE_ROOM: 'leave-room',
+  ROOM_JOINED: 'room-joined',
   PLAY_SOUND: 'play-sound',
 } as const;
 
@@ -29,6 +31,7 @@ interface SocketFunctions {
   usersState: UsersState;
   currentRoom: string | null;
   joinRoom: (roomId: string, name: string) => void;
+  leaveRoom: () => void;
   playSound: (soundId: string) => void;
   disconnect: () => void;
   onSoundPlayed?: (data: { 
@@ -106,6 +109,19 @@ const initializeSocket = (serverUrl: string) => {
   newSocket.on(SocketEvents.USER_STATE_CHANGED, (state: UsersState) => {
     console.log('Estado dos usuários atualizado:', state);
     globalState.usersState = state;
+    
+    // Atualizar currentRoom baseado no estado do usuário atual
+    const currentUser = state.connectedUsers.find(user => user.socketId === globalSocket?.id);
+    if (currentUser) {
+      globalState.currentRoom = currentUser.roomId || null;
+    }
+    
+    notifyListeners();
+  });
+
+  newSocket.on(SocketEvents.ROOM_JOINED, (data: { roomId: string }) => {
+    console.log('Sala confirmada:', data.roomId);
+    globalState.currentRoom = data.roomId;
     notifyListeners();
   });
 
@@ -162,6 +178,14 @@ export const useSocket = (onSoundPlayed?: (data: {
     }
   };
 
+  const leaveRoom = () => {
+    if (globalSocket && globalState.connected && globalState.currentRoom) {
+      globalSocket.emit(SocketEvents.LEAVE_ROOM);
+      globalState.currentRoom = null;
+      notifyListeners();
+    }
+  };
+
   const playSound = (soundId: string) => {
     if (globalSocket && globalState.connected && soundId) {
       globalSocket.emit(SocketEvents.PLAY_SOUND, { soundId });
@@ -180,6 +204,7 @@ export const useSocket = (onSoundPlayed?: (data: {
     usersState: globalState.usersState,
     currentRoom: globalState.currentRoom,
     joinRoom,
+    leaveRoom,
     playSound,
     disconnect,
     onSoundPlayed

@@ -17,7 +17,7 @@ interface RoomWithUsers {
 const Sidebar = () => {
   const [selectedRoom, setSelectedRoom] = useState(() => {
     const saved = localStorage.getItem('soundboard-current-room');
-    return saved || 'general';
+    return saved || null;
   });
   const [userName] = useState(() => {
     const saved = localStorage.getItem('soundboard-user');
@@ -25,7 +25,7 @@ const Sidebar = () => {
   });
 
   const { rooms, loading, error } = useRooms();
-  const { connected, usersState, joinRoom, currentRoom } = useSocket();
+  const { connected, usersState, joinRoom, leaveRoom, currentRoom } = useSocket();
 
   // Combine API rooms with WebSocket users state
   const roomsWithUsers: RoomWithUsers[] = (rooms || []).map((room) => {
@@ -57,23 +57,33 @@ const Sidebar = () => {
     localStorage.setItem('soundboard-current-room', roomId);
   };
 
+  const handleLeaveRoom = () => {
+    if (!connected || !currentRoom) return;
+    
+    leaveRoom();
+    setSelectedRoom(null);
+    localStorage.removeItem('soundboard-current-room');
+  };
+
   useEffect(() => {
     // Auto-connect to WebSocket when available and join saved room
     if (connected && roomsWithUsers.length > 0 && !currentRoom) {
       const savedRoom = localStorage.getItem('soundboard-current-room');
       
-      // Verificar se a sala salva existe na lista de salas disponíveis
-      const roomExists = roomsWithUsers.some(room => room.id === savedRoom);
-      const roomToJoin = roomExists && savedRoom ? savedRoom : 'general';
-      
-      console.log(`WebSocket connected, joining room: ${roomToJoin}`);
-      joinRoom(roomToJoin, userName);
-      setSelectedRoom(roomToJoin);
-      
-      // Atualizar localStorage se a sala salva não existir mais
-      if (!roomExists) {
-        localStorage.setItem('soundboard-current-room', 'general');
+      // Entrar apenas se houver uma sala salva e ela existir
+      if (savedRoom) {
+        const roomExists = roomsWithUsers.some(room => room.id === savedRoom);
+        
+        if (roomExists) {
+          console.log(`WebSocket connected, joining saved room: ${savedRoom}`);
+          joinRoom(savedRoom, userName);
+          setSelectedRoom(savedRoom);
+        } else {
+          // Limpar localStorage se sala não existir mais
+          localStorage.removeItem('soundboard-current-room');
+        }
       }
+      // Se não houver sala salva, não entrar em nenhuma sala automaticamente
     }
   }, [connected, roomsWithUsers.length, currentRoom, joinRoom, userName]);
 
@@ -127,20 +137,39 @@ const Sidebar = () => {
         </div>
       </div>
 
+      {currentRoom && (
+        <div className="sidebar-section">
+          <button 
+            className="leave-room-button"
+            onClick={handleLeaveRoom}
+            disabled={!connected}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+            </svg>
+            Leave Room
+          </button>
+        </div>
+      )}
+
       <div className="sidebar-section">
         <h3>Users in this room</h3>
         <div className="user-list">
-          {roomsWithUsers
-            .find((room) => room.id === selectedRoom)
-            ?.users.map((user: User) => (
-              <div key={user.id} className="user-item">
-                <div 
-                  className="status-indicator"
-                  style={{ backgroundColor: '#43b581' }}
-                />
-                <span className="user-name">{user.name}</span>
-              </div>
-            )) || <div className="no-users">No users in this room</div>}
+          {selectedRoom ? (
+            roomsWithUsers
+              .find((room) => room.id === selectedRoom)
+              ?.users.map((user: User) => (
+                <div key={user.id} className="user-item">
+                  <div 
+                    className="status-indicator"
+                    style={{ backgroundColor: '#43b581' }}
+                  />
+                  <span className="user-name">{user.name}</span>
+                </div>
+              )) || <div className="no-users">No users in this room</div>
+          ) : (
+            <div className="no-users">Select a room to see users</div>
+          )}
         </div>
       </div>
 
