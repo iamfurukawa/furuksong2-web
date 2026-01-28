@@ -15,7 +15,10 @@ interface RoomWithUsers {
 }
 
 const Sidebar = () => {
-  const [selectedRoom, setSelectedRoom] = useState('general');
+  const [selectedRoom, setSelectedRoom] = useState(() => {
+    const saved = localStorage.getItem('soundboard-current-room');
+    return saved || 'general';
+  });
   const [userName] = useState(() => {
     const saved = localStorage.getItem('soundboard-user');
     return saved || 'Guest User';
@@ -49,14 +52,30 @@ const Sidebar = () => {
     // Entrar diretamente na nova sala (servidor vai sair da anterior automaticamente)
     joinRoom(roomId, userName);
     setSelectedRoom(roomId);
+    
+    // Salvar sala atual no localStorage
+    localStorage.setItem('soundboard-current-room', roomId);
   };
 
   useEffect(() => {
-    // Auto-connect to WebSocket when available, but don't join any room automatically
+    // Auto-connect to WebSocket when available and join saved room
     if (connected && roomsWithUsers.length > 0 && !currentRoom) {
-      console.log('WebSocket connected and rooms available, ready for manual room selection');
+      const savedRoom = localStorage.getItem('soundboard-current-room');
+      
+      // Verificar se a sala salva existe na lista de salas disponíveis
+      const roomExists = roomsWithUsers.some(room => room.id === savedRoom);
+      const roomToJoin = roomExists && savedRoom ? savedRoom : 'general';
+      
+      console.log(`WebSocket connected, joining room: ${roomToJoin}`);
+      joinRoom(roomToJoin, userName);
+      setSelectedRoom(roomToJoin);
+      
+      // Atualizar localStorage se a sala salva não existir mais
+      if (!roomExists) {
+        localStorage.setItem('soundboard-current-room', 'general');
+      }
     }
-  }, [connected, roomsWithUsers.length, currentRoom]);
+  }, [connected, roomsWithUsers.length, currentRoom, joinRoom, userName]);
 
   const getAllOnlineUsers = () => {
     const allOnlineUsers: (User & { roomName: string })[] = [];
