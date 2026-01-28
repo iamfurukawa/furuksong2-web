@@ -90,6 +90,7 @@ const Sidebar = () => {
   const getAllOnlineUsers = () => {
     const allOnlineUsers: (User & { roomName: string })[] = [];
     
+    // Primeiro, pegar usuários que estão em salas
     Object.entries(usersState.rooms).forEach(([roomId, roomData]) => {
       const room = roomsWithUsers.find(r => r.id === roomId);
       if (room) {
@@ -99,6 +100,21 @@ const Sidebar = () => {
             name: user.name,
             roomName: room.name
           });
+        });
+      }
+    });
+    
+    // Depois, adicionar usuários conectados que não estão em nenhuma sala
+    usersState.connectedUsers.forEach((connectedUser) => {
+      // Verificar se o usuário já está na lista (está em alguma sala)
+      const userInRoom = allOnlineUsers.find(user => user.id === connectedUser.socketId);
+      
+      // Se não estiver em nenhuma sala, adicionar como "No room"
+      if (!userInRoom) {
+        allOnlineUsers.push({
+          id: connectedUser.socketId,
+          name: connectedUser.name,
+          roomName: 'No room'
         });
       }
     });
@@ -183,7 +199,9 @@ const Sidebar = () => {
                 style={{ backgroundColor: '#43b581' }}
               />
               <span className="user-name">{user.name}</span>
-              <span className="room-tag">{user.roomName}</span>
+              <span className={`room-tag ${user.roomName === 'No room' ? 'no-room' : ''}`}>
+                {user.roomName}
+              </span>
             </div>
           ))}
         </div>
