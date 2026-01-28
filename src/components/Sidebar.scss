@@ -2,12 +2,15 @@
 
 .sidebar {
   width: 250px;
+  height: calc(100vh - 60px); // Altura total menos altura do header
   background-color: #2f3136;
   color: #dcddde;
   display: flex;
   flex-direction: column;
   border-right: 1px solid #202225;
   transition: background-color 0.3s ease, border-color 0.3s ease;
+  overflow-y: auto;
+  overflow-x: hidden; // Evita scroll horizontal
 
   body[data-theme='dark'] & {
     background-color: #1a1b1e;
