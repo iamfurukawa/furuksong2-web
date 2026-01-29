@@ -336,6 +336,24 @@
   }
 }
 
+.sound-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  
+  .sound-name {
+    font-weight: 600;
+    color: #374151;
+    font-size: 1rem;
+  }
+  
+  .sound-categories {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+}
+
 .loading, .error {
   text-align: center;
   padding: 2rem;

@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
 import { categoryService } from '../../services/categoryService';
 import { roomService } from '../../services/roomService';
+import { soundService } from '../../services/soundService';
 import { healthService, type HealthStatus } from '../../services/healthService';
 import type { Category } from '../../types/category';
 import type { Room } from '../../types/room';
+import type { Sound } from '../../types/sound';
 import './Admin.scss';
 
 const Admin = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [sounds, setSounds] = useState<Sound[]>([]);
   const [health, setHealth] = useState<HealthStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,14 +25,16 @@ const Admin = () => {
       setLoading(true);
       setError(null);
       
-      const [categoriesData, roomsData, healthData] = await Promise.all([
+      const [categoriesData, roomsData, soundsData, healthData] = await Promise.all([
         categoryService.getCategories(),
         roomService.getRooms(),
+        soundService.getSounds(),
         healthService.getHealthStatus()
       ]);
       
       setCategories(categoriesData);
       setRooms(roomsData);
+      setSounds(soundsData);
       setHealth(healthData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch data');
@@ -52,6 +57,23 @@ const Admin = () => {
       setNewCategoryName('');
     } catch (err) {
       console.error('Error creating category:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create category';
+      alert(`Error: ${errorMessage}`);
+    }
+  };
+
+  const handleCreateRoom = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newRoomName.trim()) return;
+    
+    try {
+      const newRoom = await roomService.createRoom(newRoomName.trim());
+      setRooms(prev => [...prev, newRoom]);
+      setNewRoomName('');
+    } catch (err) {
+      console.error('Error creating room:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create room';
+      alert(`Error: ${errorMessage}`);
     }
   };
 
@@ -61,19 +83,8 @@ const Admin = () => {
       setCategories(prev => prev.filter(cat => cat.id !== id));
     } catch (err) {
       console.error('Error deleting category:', err);
-    }
-  };
-
-  const handleCreateRoom = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newRoomName.trim()) return;
-    
-    try {
-      const newRoom = await roomService.createRoom(newRoomName);
-      setRooms(prev => [...prev, newRoom]);
-      setNewRoomName('');
-    } catch (err) {
-      console.error('Error creating room:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete category';
+      alert(`Error: ${errorMessage}`);
     }
   };
 
@@ -83,6 +94,19 @@ const Admin = () => {
       setRooms(prev => prev.filter(room => room.id !== id));
     } catch (err) {
       console.error('Error deleting room:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete room';
+      alert(`Error: ${errorMessage}`);
+    }
+  };
+
+  const handleDeleteSound = async (id: string) => {
+    try {
+      await soundService.deleteSound(id);
+      setSounds(prev => prev.filter(sound => sound.id !== id));
+    } catch (err) {
+      console.error('Error deleting sound:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete sound';
+      alert(`Error: ${errorMessage}`);
     }
   };
 
@@ -242,6 +266,36 @@ const Admin = () => {
           </div>
         </section>
       </div>
+
+      {/* Sounds */}
+      <section className="admin-section">
+        <h2>Sounds</h2>
+        
+        <div className="admin-list">
+          {sounds.map((sound) => (
+            <div key={sound.id} className="admin-list-item">
+              <div className="sound-info">
+                <span className="sound-name">{sound.name}</span>
+                <span className="sound-categories">
+                  {sound.categories && sound.categories.length > 0 
+                    ? sound.categories.map(cat => cat.label).join(', ')
+                    : 'No categories'
+                  }
+                </span>
+              </div>
+              <button 
+                onClick={() => handleDeleteSound(sound.id)}
+                className="admin-button danger"
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+          {sounds.length === 0 && (
+            <div className="empty-state">No sounds found</div>
+          )}
+        </div>
+      </section>
     </div>
   );
 };
