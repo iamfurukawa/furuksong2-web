@@ -27,10 +27,24 @@ export const soundService = {
       await request.delete(`/sound/${id}`);
     } catch (error) {
       console.error('Error deleting sound:', error);
-      // Extrair mensagem de erro do Axios se disponível
       if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as any;
         const message = axiosError.response?.data?.error || axiosError.message || 'Failed to delete sound';
+        throw new Error(message);
+      }
+      throw error;
+    }
+  },
+
+  async updateSound(id: string, name: string, categoryIds: string[]): Promise<Sound> {
+    try {
+      const response = await request.put<Sound>(`/sound/${id}`, { name, categoryIds });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating sound:', error);
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as any;
+        const message = axiosError.response?.data?.error || axiosError.message || 'Failed to update sound';
         throw new Error(message);
       }
       throw error;

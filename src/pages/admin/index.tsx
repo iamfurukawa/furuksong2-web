@@ -25,6 +25,9 @@ const Admin = () => {
   const [editingCategoryName, setEditingCategoryName] = useState('');
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
   const [editingRoomName, setEditingRoomName] = useState('');
+  const [editingSoundId, setEditingSoundId] = useState<string | null>(null);
+  const [editingSoundName, setEditingSoundName] = useState('');
+  const [editingSoundCategories, setEditingSoundCategories] = useState<string[]>([]);
 
   const fetchData = async () => {
     try {
@@ -184,6 +187,46 @@ const Admin = () => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete sound';
       alert(`Error: ${errorMessage}`);
     }
+  };
+
+  const handleEditSound = (id: string, currentName: string, currentCategories: Category[]) => {
+    setEditingSoundId(id);
+    setEditingSoundName(currentName);
+    setEditingSoundCategories(currentCategories.map(cat => cat.id));
+  };
+
+  const handleSaveSoundEdit = async () => {
+    if (!editingSoundId || !editingSoundName.trim()) {
+      return;
+    }
+    
+    try {
+      const updatedSound = await soundService.updateSound(editingSoundId, editingSoundName.trim(), editingSoundCategories);
+      setSounds(prev => prev.map(sound => 
+        sound.id === editingSoundId ? updatedSound : sound
+      ));
+      setEditingSoundId(null);
+      setEditingSoundName('');
+      setEditingSoundCategories([]);
+    } catch (err) {
+      console.error('Error updating sound:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update sound';
+      alert(`Error: ${errorMessage}`);
+    }
+  };
+
+  const handleCancelSoundEdit = () => {
+    setEditingSoundId(null);
+    setEditingSoundName('');
+    setEditingSoundCategories([]);
+  };
+
+  const handleCategoryToggle = (categoryId: string) => {
+    setEditingSoundCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
   };
 
   const getHealthColor = (status: string) => {
@@ -424,21 +467,76 @@ const Admin = () => {
         <div className="admin-list">
           {sounds.map((sound) => (
             <div key={sound.id} className="admin-list-item">
-              <div className="sound-info">
-                <span className="sound-name">{sound.name}</span>
-                <span className="sound-categories">
-                  {sound.categories && sound.categories.length > 0 
-                    ? sound.categories.map(cat => cat.label).join(', ')
-                    : 'No categories'
-                  }
-                </span>
-              </div>
-              <button 
-                onClick={() => handleDeleteSound(sound.id)}
-                className="admin-button danger"
-              >
-                Delete
-              </button>
+              {editingSoundId === sound.id ? (
+                <div className="edit-form">
+                  <div className="edit-form-content">
+                    <input
+                      type="text"
+                      value={editingSoundName}
+                      onChange={(e) => setEditingSoundName(e.target.value)}
+                      className="admin-input"
+                      placeholder="Sound name"
+                      autoFocus
+                    />
+                    <div className="categories-selection">
+                      <label>Categories:</label>
+                      <div className="category-checkboxes">
+                        {categories.map((category) => (
+                          <label key={category.id} className="category-checkbox">
+                            <input
+                              type="checkbox"
+                              checked={editingSoundCategories.includes(category.id)}
+                              onChange={() => handleCategoryToggle(category.id)}
+                            />
+                            {category.label}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="edit-buttons">
+                    <button 
+                      onClick={handleSaveSoundEdit}
+                      className="admin-button primary"
+                    >
+                      Save
+                    </button>
+                    <button 
+                      onClick={handleCancelSoundEdit}
+                      className="admin-button"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="sound-info">
+                    <span className="sound-name">{sound.name}</span>
+                    <span className="sound-categories">
+                      {sound.categories && sound.categories.length > 0 
+                        ? sound.categories.map(cat => cat.label).join(', ')
+                        : 'No categories'
+                      }
+                    </span>
+                  </div>
+                  <div className="action-buttons" style={{ gap: '2rem' }}>
+                    <button 
+                      onClick={() => handleEditSound(sound.id, sound.name, sound.categories)}
+                      className="admin-button secondary"
+                      style={{ marginRight: '0.5rem' }}
+                    >
+                      Edit
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteSound(sound.id)}
+                      className="admin-button danger"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           ))}
           {sounds.length === 0 && (
