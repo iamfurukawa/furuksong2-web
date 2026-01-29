@@ -23,6 +23,8 @@ const Admin = () => {
   // Edit states
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   const [editingCategoryName, setEditingCategoryName] = useState('');
+  const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
+  const [editingRoomName, setEditingRoomName] = useState('');
 
   const fetchData = async () => {
     try {
@@ -138,6 +140,35 @@ const Admin = () => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete room';
       alert(`Error: ${errorMessage}`);
     }
+  };
+
+  const handleEditRoom = (id: string, currentName: string) => {
+    setEditingRoomId(id);
+    setEditingRoomName(currentName);
+  };
+
+  const handleSaveRoomEdit = async () => {
+    if (!editingRoomId || !editingRoomName.trim()) {
+      return;
+    }
+    
+    try {
+      const updatedRoom = await roomService.updateRoom(editingRoomId, editingRoomName.trim());
+      setRooms(prev => prev.map(room => 
+        room.id === editingRoomId ? updatedRoom : room
+      ));
+      setEditingRoomId(null);
+      setEditingRoomName('');
+    } catch (err) {
+      console.error('Error updating room:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update room';
+      alert(`Error: ${errorMessage}`);
+    }
+  };
+
+  const handleCancelRoomEdit = () => {
+    setEditingRoomId(null);
+    setEditingRoomName('');
   };
 
   const handleDeleteSound = async (id: string) => {
@@ -333,13 +364,50 @@ const Admin = () => {
           <div className="admin-list">
             {rooms.map((room) => (
               <div key={room.id} className="admin-list-item">
-                <span>{room.name}</span>
-                <button 
-                  onClick={() => handleDeleteRoom(room.id)}
-                  className="admin-button danger"
-                >
-                  Delete
-                </button>
+                {editingRoomId === room.id ? (
+                  <div className="edit-form">
+                    <input
+                      type="text"
+                      value={editingRoomName}
+                      onChange={(e) => setEditingRoomName(e.target.value)}
+                      className="admin-input"
+                      autoFocus
+                    />
+                    <div className="edit-buttons">
+                      <button 
+                        onClick={handleSaveRoomEdit}
+                        className="admin-button primary"
+                      >
+                        Save
+                      </button>
+                      <button 
+                        onClick={handleCancelRoomEdit}
+                        className="admin-button"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <span>{room.name}</span>
+                    <div className="action-buttons" style={{ gap: '2rem' }}>
+                      <button 
+                        onClick={() => handleEditRoom(room.id, room.name)}
+                        className="admin-button secondary"
+                        style={{ marginRight: '0.5rem' }}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteRoom(room.id)}
+                        className="admin-button danger"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
             {rooms.length === 0 && (

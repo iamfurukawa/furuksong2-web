@@ -29,5 +29,15 @@ export const roomService = {
       console.error('Error deleting room:', error);
       throw error;
     }
+  },
+
+  async updateRoom(id: string, name: string): Promise<Room> {
+    try {
+      const response = await request.put<Room>(`/room/${id}`, { name });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating room:', error);
+      throw error;
+    }
   }
 };
