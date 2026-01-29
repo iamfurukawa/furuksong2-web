@@ -3,6 +3,7 @@ import { VolumeProvider } from './contexts/VolumeContext';
 import { useAuth } from './hooks/useAuth';
 import Login from './pages/login';
 import Home from './pages/home';
+import Admin from './pages/admin';
 import './App.scss';
 
 function App() {
@@ -27,6 +28,10 @@ function App() {
           <Route 
             path="/" 
             element={user ? <Home /> : <Navigate to="/login" replace />} 
+          />
+          <Route 
+            path="/admin" 
+            element={user ? <Admin /> : <Navigate to="/login" replace />} 
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

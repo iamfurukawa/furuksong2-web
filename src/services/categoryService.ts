@@ -11,4 +11,23 @@ export const categoryService = {
       throw error;
     }
   },
+
+  async createCategory(name: string): Promise<Category> {
+    try {
+      const response = await request.post<Category>('/category', { label: name });
+      return response.data;
+    } catch (error) {
+      console.error('Error creating category:', error);
+      throw error;
+    }
+  },
+
+  async deleteCategory(id: string): Promise<void> {
+    try {
+      await request.delete(`/category/${id}`);
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      throw error;
+    }
+  }
 };
