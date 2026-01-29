@@ -131,7 +131,7 @@ const initializeSocket = (serverUrl: string) => {
     triggeredByName: string; 
     timestamp: string 
   }) => {
-    console.log('Som tocado:', data);
+    console.log(`🔊 Som tocado por: ${data.triggeredByName} | ID: ${data.soundId} | ${new Date(data.timestamp).toLocaleTimeString()}`);
     
     if (globalCallbacks.onSoundPlayed) {
       globalCallbacks.onSoundPlayed(data);

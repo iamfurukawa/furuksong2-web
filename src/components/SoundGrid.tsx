@@ -36,7 +36,7 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
       currentAudioRef.current.currentTime = 0;
     }
     
-    console.log('Playing Audio:', sound.name);
+    console.log('Audio:', sound.name);
     const audio = new Audio(sound.url);
     audio.volume = isMuted ? 0 : volume; // Aplicar volume global
     currentAudioRef.current = audio;
