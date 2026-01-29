@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import AddSoundModal from './AddSoundModal';
 import { useSounds } from '../hooks/useSounds';
 import { useSocket } from '../hooks/useSocket';
@@ -8,7 +8,8 @@ import './SoundGrid.scss';
 
 const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selectedCategory: string }) => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const { sounds, loading, error, createSound } = useSounds();
+  const { sounds, loading, error, createSound, refetch } = useSounds();
+  const [pendingSoundId, setPendingSoundId] = useState<string | null>(null);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const { volume, isMuted } = useVolumeContext();
   
@@ -18,40 +19,70 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
       currentAudioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted]);
+
+  const playAudioFile = useCallback((sound: Sound) => {
+    // Verificar se o mesmo som já está tocando
+    if (currentAudioRef.current && currentAudioRef.current.src === sound.url) {
+      // Parar o som se já estiver tocando
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+      currentAudioRef.current = null;
+      return;
+    }
+    
+    // Pausar qualquer som que esteja tocando
+    if (currentAudioRef.current) {
+      currentAudioRef.current.pause();
+      currentAudioRef.current.currentTime = 0;
+    }
+    
+    console.log('Playing Audio:', sound.name);
+    const audio = new Audio(sound.url);
+    audio.volume = isMuted ? 0 : volume; // Aplicar volume global
+    currentAudioRef.current = audio;
+    
+    audio.play().catch(error => {
+      console.error('Error auto-playing audio:', error);
+    });
+    
+    // Limpar referência quando o som terminar
+    audio.addEventListener('ended', () => {
+      currentAudioRef.current = null;
+    });
+  }, [isMuted, volume]);
+
+  // Tentar tocar som pendente quando a lista de sons for atualizada
+  useEffect(() => {
+    if (pendingSoundId && sounds.length > 0) {
+      const sound = sounds.find(s => s.id === pendingSoundId);
+      if (sound?.url) {
+        console.log('Found pending sound after refetch:', sound.name);
+        playAudioFile(sound);
+        setPendingSoundId(null);
+      } else {
+        console.warn('Pending sound still not found:', pendingSoundId);
+        setPendingSoundId(null);
+      }
+    }
+  }, [sounds, pendingSoundId, playAudioFile]);
   const { playSound } = useSocket((data) => {
     // Reproduz o som automaticamente quando tocado em outra guia
     if (data.soundId) {
       const sound = sounds.find(s => s.id === data.soundId);
       
+      // Se o som não existir na lista atual, fazer refetch e tentar novamente
+      if (!sound) {
+        console.log('Sound not found in current list, refetching...', data.soundId);
+        setPendingSoundId(data.soundId);
+        refetch().catch(error => {
+          console.error('Error refetching sounds:', error);
+          setPendingSoundId(null);
+        });
+        return;
+      }
+      
       if (sound?.url) {
-        // Verificar se o mesmo som já está tocando
-        if (currentAudioRef.current && currentAudioRef.current.src === sound.url) {
-          // Parar o som se já estiver tocando
-          currentAudioRef.current.pause();
-          currentAudioRef.current.currentTime = 0;
-          currentAudioRef.current = null;
-          return;
-        }
-        
-        // Pausar qualquer som que esteja tocando
-        if (currentAudioRef.current) {
-          currentAudioRef.current.pause();
-          currentAudioRef.current.currentTime = 0;
-        }
-        
-        console.log('Playing Audio:', sound.name);
-        const audio = new Audio(sound.url);
-        audio.volume = isMuted ? 0 : volume; // Aplicar volume global
-        currentAudioRef.current = audio;
-        
-        audio.play().catch(error => {
-          console.error('Error auto-playing audio:', error);
-        });
-        
-        // Limpar referência quando o som terminar
-        audio.addEventListener('ended', () => {
-          currentAudioRef.current = null;
-        });
+        playAudioFile(sound);
       }
     }
   });
