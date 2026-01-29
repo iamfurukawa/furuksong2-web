@@ -29,5 +29,15 @@ export const categoryService = {
       console.error('Error deleting category:', error);
       throw error;
     }
+  },
+
+  async updateCategory(id: string, name: string): Promise<Category> {
+    try {
+      const response = await request.put<Category>(`/category/${id}`, { label: name });
+      return response.data;
+    } catch (error) {
+      console.error('Error updating category:', error);
+      throw error;
+    }
   }
 };

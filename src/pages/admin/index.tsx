@@ -19,6 +19,10 @@ const Admin = () => {
   // Form states
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newRoomName, setNewRoomName] = useState('');
+  
+  // Edit states
+  const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  const [editingCategoryName, setEditingCategoryName] = useState('');
 
   const fetchData = async () => {
     try {
@@ -90,6 +94,35 @@ const Admin = () => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete category';
       alert(`Error: ${errorMessage}`);
     }
+  };
+
+  const handleEditCategory = (id: string, currentName: string) => {
+    setEditingCategoryId(id);
+    setEditingCategoryName(currentName);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingCategoryId || !editingCategoryName.trim()) {
+      return;
+    }
+    
+    try {
+      const updatedCategory = await categoryService.updateCategory(editingCategoryId, editingCategoryName.trim());
+      setCategories(prev => prev.map(cat => 
+        cat.id === editingCategoryId ? updatedCategory : cat
+      ));
+      setEditingCategoryId(null);
+      setEditingCategoryName('');
+    } catch (err) {
+      console.error('Error updating category:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update category';
+      alert(`Error: ${errorMessage}`);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCategoryId(null);
+    setEditingCategoryName('');
   };
 
   const handleDeleteRoom = async (id: string) => {
@@ -229,13 +262,50 @@ const Admin = () => {
           <div className="admin-list">
             {categories.map((category) => (
               <div key={category.id} className="admin-list-item">
-                <span>{category.label}</span>
-                <button 
-                  onClick={() => handleDeleteCategory(category.id)}
-                  className="admin-button danger"
-                >
-                  Delete
-                </button>
+                {editingCategoryId === category.id ? (
+                  <div className="edit-form">
+                    <input
+                      type="text"
+                      value={editingCategoryName}
+                      onChange={(e) => setEditingCategoryName(e.target.value)}
+                      className="admin-input"
+                      autoFocus
+                    />
+                    <div className="edit-buttons">
+                      <button 
+                        onClick={handleSaveEdit}
+                        className="admin-button primary"
+                      >
+                        Save
+                      </button>
+                      <button 
+                        onClick={handleCancelEdit}
+                        className="admin-button"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <span>{category.label}</span>
+                    <div className="action-buttons" style={{ gap: '2rem' }}>
+                      <button 
+                        onClick={() => handleEditCategory(category.id, category.label)}
+                        className="admin-button secondary"
+                        style={{ marginRight: '0.5rem' }}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteCategory(category.id)}
+                        className="admin-button danger"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             ))}
             {categories.length === 0 && (

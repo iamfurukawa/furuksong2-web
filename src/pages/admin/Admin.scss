@@ -316,12 +316,63 @@
         cursor: pointer;
         transition: all 0.2s;
         
+        &.primary {
+          background: #3b82f6;
+          color: white;
+          
+          &:hover {
+            background: #2563eb;
+          }
+        }
+        
+        &.secondary {
+          background: #6b7280;
+          color: white;
+          
+          &:hover {
+            background: #4b5563;
+          }
+        }
+        
         &.danger {
           background: #ef4444;
           color: white;
           
           &:hover {
             background: #dc2626;
+          }
+        }
+      }
+      
+      .edit-form {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        flex: 1;
+        
+        .admin-input {
+          flex: 1;
+          padding: 0.5rem;
+          border: 1px solid #d1d5db;
+          border-radius: 4px;
+        }
+        
+        .edit-buttons {
+          display: flex;
+          gap: 0.5rem;
+        }
+      }
+      
+      .action-buttons {
+        display: flex !important;
+        gap: 2rem !important;
+        align-items: center !important;
+        
+        .admin-button {
+          margin-left: 0.5rem !important;
+          
+          &:first-child {
+            margin-left: 0 !important;
           }
         }
       }
