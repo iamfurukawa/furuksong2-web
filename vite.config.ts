@@ -8,5 +8,10 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {}
     }
-  }
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets'
+  },
+  base: '/'
 })
