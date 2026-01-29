@@ -288,6 +288,31 @@
 
 .admin-list {
   &:not(.admin-row-scroll .admin-list) {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 0.5rem;
+    background: #f9fafb;
+    
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 4px;
+      
+      &:hover {
+        background: #a8a8a8;
+      }
+    }
+    
     .admin-list-item {
       display: flex;
       justify-content: space-between;
@@ -296,10 +321,14 @@
       border: 1px solid #e5e7eb;
       border-radius: 4px;
       margin-bottom: 0.5rem;
-      background: #f9fafb;
+      background: white;
       
       &:hover {
         background: #f3f4f6;
+      }
+      
+      &:last-child {
+        margin-bottom: 0;
       }
       
       span {
