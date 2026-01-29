@@ -78,6 +78,10 @@ const Admin = () => {
   };
 
   const handleDeleteCategory = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this category?')) {
+      return;
+    }
+    
     try {
       await categoryService.deleteCategory(id);
       setCategories(prev => prev.filter(cat => cat.id !== id));
@@ -89,6 +93,10 @@ const Admin = () => {
   };
 
   const handleDeleteRoom = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this room?')) {
+      return;
+    }
+    
     try {
       await roomService.deleteRoom(id);
       setRooms(prev => prev.filter(room => room.id !== id));
@@ -100,6 +108,10 @@ const Admin = () => {
   };
 
   const handleDeleteSound = async (id: string) => {
+    if (!window.confirm('Are you sure you want to delete this sound?')) {
+      return;
+    }
+    
     try {
       await soundService.deleteSound(id);
       setSounds(prev => prev.filter(sound => sound.id !== id));
