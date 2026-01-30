@@ -87,12 +87,14 @@ const SoundGrid = ({ searchTerm, selectedCategory }: { searchTerm: string; selec
     }
   });
 
-  const filteredSounds = (sounds || []).filter(sound => {
+  const filteredSounds = (sounds || [])
+  .filter(sound => {
     const matchesSearch = sound.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || 
       sound.categories.some(category => category.id === selectedCategory);
     return matchesSearch && matchesCategory;
-  });
+  })
+  .sort((a, b) => (b.playCount || 0) - (a.playCount || 0)); // Ordenar por playCount (mais tocados primeiro)
 
   const getSoundColor = (index: number) => {
     // Usa HSL para criar cores sequenciais em tons pasteis
