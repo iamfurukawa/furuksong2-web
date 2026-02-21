@@ -14,6 +14,3 @@ COPY . .
 
 # Build the application
 RUN npm run build
-
-# Copy built files to app directory for volume mount
-RUN cp -r dist /app/dist
