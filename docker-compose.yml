@@ -7,8 +7,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3002:80"
-    volumes:
-      - furuksong2-web:/app/dist:ro
     restart: unless-stopped
     networks:
       - nginxnet
@@ -16,6 +14,3 @@ services:
 networks:
   nginxnet:
     external: true
-
-volumes:
-  furuksong2-web:
