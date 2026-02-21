@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  furuksong2-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3002:80"
+    volumes:
+      - furuksong2-web:/app/dist:ro
+    restart: unless-stopped
+    networks:
+      - nginxnet
+
+networks:
+  nginxnet:
+    external: true
+
+volumes:
+  furuksong2-web:
