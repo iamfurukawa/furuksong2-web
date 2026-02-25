@@ -122,6 +122,38 @@ const Sidebar = () => {
     return allOnlineUsers;
   };
 
+  const getUserStatusColor = (userName: string, userList: User[]): string => {
+    const nameCount = userList.filter(user => user.name === userName).length;
+    return nameCount > 1 ? '#f1c40f' : '#43b581'; // amarelo para nomes repetidos
+  };
+
+  const getOnlineUserStatusColor = (userName: string, allUsers: (User & { roomName: string })[]): string => {
+    const nameCount = allUsers.filter(user => user.name === userName).length;
+    return nameCount > 1 ? '#f1c40f' : '#43b581'; // amarelo para nomes repetidos
+  };
+
+  const getUniqueUsers = (users: User[]): User[] => {
+    const uniqueNames = new Set<string>();
+    return users.filter(user => {
+      if (uniqueNames.has(user.name)) {
+        return false;
+      }
+      uniqueNames.add(user.name);
+      return true;
+    });
+  };
+
+  const getUniqueOnlineUsers = (users: (User & { roomName: string })[]): (User & { roomName: string })[] => {
+    const uniqueNames = new Set<string>();
+    return users.filter(user => {
+      if (uniqueNames.has(user.name)) {
+        return false;
+      }
+      uniqueNames.add(user.name);
+      return true;
+    });
+  };
+
   return (
     <aside className="sidebar">
       <div className="sidebar-section">
@@ -172,17 +204,27 @@ const Sidebar = () => {
         <h3>Users in this room</h3>
         <div className="user-list">
           {selectedRoom ? (
-            roomsWithUsers
-              .find((room) => room.id === selectedRoom)
-              ?.users.map((user: User) => (
-                <div key={user.id} className="user-item">
-                  <div 
-                    className="status-indicator"
-                    style={{ backgroundColor: '#43b581' }}
-                  />
-                  <span className="user-name">{user.name}</span>
-                </div>
-              )) || <div className="no-users">No users in this room</div>
+            (() => {
+              const currentRoomUsers = roomsWithUsers
+                .find((room) => room.id === selectedRoom)
+                ?.users || [];
+              
+              const uniqueUsers = getUniqueUsers(currentRoomUsers);
+              
+              return uniqueUsers.length > 0 ? (
+                uniqueUsers.map((user: User) => (
+                  <div key={user.id} className="user-item">
+                    <div 
+                      className="status-indicator"
+                      style={{ backgroundColor: getUserStatusColor(user.name, currentRoomUsers) }}
+                    />
+                    <span className="user-name">{user.name}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="no-users">No users in this room</div>
+              );
+            })()
           ) : (
             <div className="no-users">Select a room to see users</div>
           )}
@@ -192,18 +234,23 @@ const Sidebar = () => {
       <div className="sidebar-section">
         <h3>Where is?</h3>
         <div className="user-list">
-          {getAllOnlineUsers().map((user) => (
-            <div key={`${user.id}-${user.roomName}`} className="user-item">
-              <div 
-                className="status-indicator"
-                style={{ backgroundColor: '#43b581' }}
-              />
-              <span className="user-name">{user.name}</span>
-              <span className={`room-tag ${user.roomName === 'No room' ? 'no-room' : ''}`}>
-                {user.roomName}
-              </span>
-            </div>
-          ))}
+          {(() => {
+            const allOnlineUsers = getAllOnlineUsers();
+            const uniqueOnlineUsers = getUniqueOnlineUsers(allOnlineUsers);
+            
+            return uniqueOnlineUsers.map((user) => (
+              <div key={`${user.id}-${user.roomName}`} className="user-item">
+                <div 
+                  className="status-indicator"
+                  style={{ backgroundColor: getOnlineUserStatusColor(user.name, allOnlineUsers) }}
+                />
+                <span className="user-name">{user.name}</span>
+                <span className={`room-tag ${user.roomName === 'No room' ? 'no-room' : ''}`}>
+                  {user.roomName}
+                </span>
+              </div>
+            ));
+          })()}
         </div>
       </div>
     </aside>
